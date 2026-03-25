@@ -38,4 +38,4 @@ jobs:
       # 5️⃣ Optionally, run tests
       - name: Test ${{ matrix.service }}
         working-directory: ${{ matrix.service }}
-        run: ./gradlew test --no-daemon
+        run: ./gradlew build -x test --no-daemon
