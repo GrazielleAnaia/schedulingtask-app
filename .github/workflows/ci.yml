@@ -1,0 +1,65 @@
+name: CI/CD for Microservices
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+
+  notification-api:
+    name: Build Notification API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: notification-api
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+  registration-api:
+    name: Build Registration API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: registration-api
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+  scheduling-api:
+    name: Build Scheduling API
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: scheduling-api
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
