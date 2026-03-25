@@ -1,65 +1,41 @@
-name: CI/CD for Microservices
+name: CI for Microservices
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
 
 jobs:
-
-  notification-api:
-    name: Build Notification API
+  build-microservices:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: notification-api
-    steps:
-      - uses: actions/checkout@v3
 
+    strategy:
+      matrix:
+        service: [registration-api, scheduling-api, notification-api]
+
+    steps:
+      # 1️⃣ Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ Set up Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
           java-version: '17'
+          distribution: 'temurin'
 
-      - name: Build with Gradle
-        run: ./gradlew clean build
+      # 3️⃣ Grant execute permission to gradlew
+      - name: Grant execute permission to gradlew
+        run: chmod +x ${{ matrix.service }}/gradlew
 
-  registration-api:
-    name: Build Registration API
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: registration-api
-    steps:
-      - uses: actions/checkout@v3
+      # 4️⃣ Build the microservice
+      - name: Build ${{ matrix.service }}
+        working-directory: ${{ matrix.service }}
+        run: ./gradlew build --no-daemon
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Build with Gradle
-        run: ./gradlew clean build
-
-  scheduling-api:
-    name: Build Scheduling API
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: scheduling-api
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Build with Gradle
-        run: ./gradlew clean build
+      # 5️⃣ Optionally, run tests
+      - name: Test ${{ matrix.service }}
+        working-directory: ${{ matrix.service }}
+        run: ./gradlew test --no-daemon
