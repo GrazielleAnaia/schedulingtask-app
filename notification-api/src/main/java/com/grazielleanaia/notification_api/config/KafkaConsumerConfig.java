@@ -2,6 +2,8 @@ package com.grazielleanaia.notification_api.config;
 
 
 import com.grazielleanaia.notification_api.dto.TaskEvent;
+import com.grazielleanaia.notification_api.error.NotRetryableException;
+import com.grazielleanaia.notification_api.error.RetryableException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -48,8 +50,8 @@ public class KafkaConsumerConfig {
             KafkaTemplate<String, Object> kafkaTemplate, ConsumerFactory<String, Object> consumerFactory) {
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate),
                 new FixedBackOff(5000, 3));
-//        errorHandler.addNotRetryableExceptions(NotRetryableException.class);
-//        errorHandler.addRetryableExceptions(RetryableException.class);
+        errorHandler.addNotRetryableExceptions(NotRetryableException.class); //send it to dead letter topic
+        errorHandler.addRetryableExceptions(RetryableException.class);
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.setCommonErrorHandler(errorHandler);
