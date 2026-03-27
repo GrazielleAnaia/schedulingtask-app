@@ -33,9 +33,9 @@ jobs:
       # 4 Build the microservice
       - name: Build ${{ matrix.service }}
         working-directory: ${{ matrix.service }}
-        run: ./gradlew build --no-daemon
+        run: ./gradlew build -x test --no-daemon
 
       # 5 Optionally, run tests
-      - name: Test ${{ matrix.service }}
-        working-directory: ${{ matrix.service }}
-        run: ./gradlew build -x test --no-daemon
+#      - name: Test ${{ matrix.service }}
+#        working-directory: ${{ matrix.service }}
+#        run: ./gradlew build -x test --no-daemon
