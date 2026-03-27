@@ -22,10 +22,10 @@ spring:
                 class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
           json:
             trusted:
-              packages: "*"
-            use:
-              type:
-                headers: false
+              packages: com.grazielleanaia.notification_api.dto
+#            use:
+#              type:
+#                headers: false
             value:
               default:
                 type: com.grazielleanaia.notification_api.dto.TaskEvent
