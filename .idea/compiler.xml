@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.mapstruct/mapstruct-processor/1.5.3.Final/dce418bedafd71ff8dd2cef15006c0fee788b073/mapstruct-processor-1.5.3.Final.jar" />
+        </processorPath>
+        <module name="registration-api.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="core" target="17" />
+      <module name="core.main" target="17" />
+      <module name="core.test" target="17" />
+      <module name="schedulingtasks-app-ms.core" target="17" />
+      <module name="schedulingtasks-app-ms.core.main" target="17" />
+      <module name="schedulingtasks-app-ms.core.test" target="17" />
+      <module name="schedulingtasks-app-ms.notification-api" target="17" />
+      <module name="schedulingtasks-app-ms.notification-api.main" target="17" />
+      <module name="schedulingtasks-app-ms.notification-api.test" target="17" />
+      <module name="schedulingtasks-app-ms.scheduling-api" target="17" />
+      <module name="schedulingtasks-app-ms.scheduling-api.main" target="17" />
+      <module name="schedulingtasks-app-ms.scheduling-api.test" target="17" />
+    </bytecodeTargetLevel>
+  </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="notification-api" options="-parameters" />
@@ -11,6 +36,12 @@
       <module name="scheduling-api" options="-parameters" />
       <module name="scheduling-api.main" options="-parameters" />
       <module name="scheduling-api.test" options="-parameters" />
+      <module name="schedulingtasks-app-ms.notification-api" options="-parameters" />
+      <module name="schedulingtasks-app-ms.notification-api.main" options="-parameters" />
+      <module name="schedulingtasks-app-ms.notification-api.test" options="-parameters" />
+      <module name="schedulingtasks-app-ms.scheduling-api" options="-parameters" />
+      <module name="schedulingtasks-app-ms.scheduling-api.main" options="-parameters" />
+      <module name="schedulingtasks-app-ms.scheduling-api.test" options="-parameters" />
     </option>
   </component>
 </project>

@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/registration-api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/registration-api.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/scheduling-api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/scheduling-api.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/schedulingtasks-app-ms.iml" filepath="$PROJECT_DIR$/.idea/schedulingtasks-app-ms.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/scheduling-api.test.iml" filepath="$PROJECT_DIR$/.idea/modules/scheduling-api.test.iml" />
     </modules>
   </component>
 </project>
