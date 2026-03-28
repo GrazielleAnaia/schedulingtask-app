@@ -21,7 +21,7 @@ public class TaskEventConsumer {
         this.emailService = emailService;
     }
 
-    @KafkaListener(topics = "task-created-topic", groupId = "notification-product-create-group")
+    @KafkaListener(topics = "task-created-topic")
     @KafkaHandler
     public void consume(TaskEvent taskEvent) {
         logger.info("Received task event {}", taskEvent.getTaskId());
