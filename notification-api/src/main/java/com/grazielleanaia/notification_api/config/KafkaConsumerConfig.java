@@ -2,8 +2,6 @@ package com.grazielleanaia.notification_api.config;
 
 
 import com.grazielleanaia.notification_api.dto.TaskEvent;
-import com.grazielleanaia.notification_api.error.NotRetryableException;
-import com.grazielleanaia.notification_api.error.RetryableException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -20,6 +18,8 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 import org.springframework.util.backoff.FixedBackOff;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class KafkaConsumerConfig {
 
     //1
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    public ConsumerFactory<String, TaskEvent> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, environment.getProperty("spring.kafka.bootstrap-servers"));
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -40,19 +40,21 @@ public class KafkaConsumerConfig {
         config.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JacksonJsonDeserializer.class);
         config.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, environment.getProperty("spring.kafka.consumer.properties.spring.json.trusted.packages"));
         config.put(ConsumerConfig.GROUP_ID_CONFIG, environment.getProperty("spring.kafka.consumer.group-id"));
+        config.put(JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, environment.getProperty("spring.kafka.consumer.properties.spring.json.value.default.type"));
         //config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, environment.getProperty("spring.kafka.consumer.auto-offset-reset"));
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
     //2
     @Bean
-    ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-            KafkaTemplate<String, Object> kafkaTemplate, ConsumerFactory<String, Object> consumerFactory) {
+    ConcurrentKafkaListenerContainerFactory<String, TaskEvent> kafkaListenerContainerFactory(
+            KafkaTemplate<String, Object> kafkaTemplate, ConsumerFactory<String, TaskEvent> consumerFactory) {
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate),
                 new FixedBackOff(5000, 3));
-        errorHandler.addNotRetryableExceptions(NotRetryableException.class); //send it to dead letter topic
-        errorHandler.addRetryableExceptions(RetryableException.class);
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        errorHandler.addNotRetryableExceptions(IllegalArgumentException.class,
+                HttpServerErrorException.class); //send  to dead letter topic
+        errorHandler.addRetryableExceptions(ResourceAccessException.class);
+        ConcurrentKafkaListenerContainerFactory<String, TaskEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.setCommonErrorHandler(errorHandler);
         return factory;
