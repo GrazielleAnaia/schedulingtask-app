@@ -14,7 +14,6 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-
     public void sendNotification(TaskEvent taskEvent) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(taskEvent.getCustomerId().toString()); //email is better
