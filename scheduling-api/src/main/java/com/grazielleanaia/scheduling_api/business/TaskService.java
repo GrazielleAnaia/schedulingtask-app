@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -73,6 +74,8 @@ public class TaskService {
 
         //Send message synchronously
         ProducerRecord<String, TaskEvent> record = new ProducerRecord<>("task-created-topic", event.getTaskId(), event);
+        record.headers().add("messageHeaderId", UUID.randomUUID().toString().getBytes());
+
         SendResult<String, TaskEvent> result = kafkaTemplate.send(record).get();
         logger.info("Partition: " + result.getRecordMetadata().partition());
         logger.info("Topic name: " + result.getRecordMetadata().topic());
