@@ -8,6 +8,7 @@ import com.grazielleanaia.scheduling_api.infrastructure.enums.NotificationStatus
 import com.grazielleanaia.scheduling_api.infrastructure.exception.ResourceNotFoundException;
 import com.grazielleanaia.scheduling_api.infrastructure.repository.TaskRepository;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,8 +26,10 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -57,6 +60,7 @@ public class TaskService {
     public TaskResponseDTO createTask(TaskRequestDTO request, Long customerId) throws ExecutionException, InterruptedException {
         //Validate customer exists with FeignClient
         CustomerResponseDTO customerResponseDTO = customerClient.findCustomerById(customerId);
+
         TaskEntity entity = taskConverter.toTaskEntity(request);
         entity.setCustomerId(customerId);
         entity.setNotificationStatusEnum(NotificationStatusEnum.PENDING);
@@ -73,6 +77,8 @@ public class TaskService {
 
         //Send message synchronously
         ProducerRecord<String, TaskEvent> record = new ProducerRecord<>("task-created-topic", event.getTaskId(), event);
+        record.headers().add(new RecordHeader("messageHeaderId", UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
+
         SendResult<String, TaskEvent> result = kafkaTemplate.send(record).get();
         logger.info("Partition: " + result.getRecordMetadata().partition());
         logger.info("Topic name: " + result.getRecordMetadata().topic());
@@ -81,8 +87,8 @@ public class TaskService {
         logger.info("Serialized key size: " + result.getRecordMetadata().serializedKeySize());
         logger.info("Serialized value size: " + result.getRecordMetadata().serializedValueSize());
         logger.info("Timestamp: " + result.getRecordMetadata().timestamp());
-
         logger.info("---sending to task-created-event-topic---" + event);
+
         return taskConverter.toTaskResponseDTO(savedEntity);
     }
 
