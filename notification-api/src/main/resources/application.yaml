@@ -11,7 +11,7 @@ spring:
 #      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      group-id: notification-product-created-group
+      group-id: notification-task-created-group
 #      auto-offset-reset: earliest
       properties:
         spring:

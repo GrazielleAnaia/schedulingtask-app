@@ -2,10 +2,15 @@ package com.grazielleanaia.notification_api.config;
 
 
 import com.grazielleanaia.notification_api.dto.TaskEvent;
+import com.grazielleanaia.notification_api.error.NotRetryableException;
+import com.grazielleanaia.notification_api.error.RetryableException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +35,8 @@ public class KafkaConsumerConfig {
     @Autowired
     Environment environment;
 
-    //1
+    private final Logger logger = LoggerFactory.getLogger(KafkaConsumerConfig.class);
+
     @Bean
     public ConsumerFactory<String, TaskEvent> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
@@ -53,15 +59,22 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
-    //2
+
     @Bean
     ConcurrentKafkaListenerContainerFactory<String, TaskEvent> kafkaListenerContainerFactory(
             KafkaTemplate<String, Object> kafkaTemplate, ConsumerFactory<String, TaskEvent> consumerFactory) {
+
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
+                (record, ex) -> {
+                    logger.error("Sending message {} to DLT due to {}", record.key(), ex.getMessage());
+                    return new TopicPartition(record.topic() + "-dlt", record.partition());}
+                ); // preserves partition
+
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate),
                 new FixedBackOff(5000, 3));
         errorHandler.addNotRetryableExceptions(IllegalArgumentException.class,
-                HttpServerErrorException.class); //send  to dead letter topic
-        errorHandler.addRetryableExceptions(ResourceAccessException.class);
+                HttpServerErrorException.class, NotRetryableException.class); //send  to dead letter topic
+        errorHandler.addRetryableExceptions(ResourceAccessException.class, RetryableException.class);
         ConcurrentKafkaListenerContainerFactory<String, TaskEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.setCommonErrorHandler(errorHandler);
