@@ -77,7 +77,7 @@ public class TaskService {
 
         //Send message synchronously
         ProducerRecord<String, TaskEvent> record = new ProducerRecord<>("task-created-topic", event.getTaskId(), event);
-        record.headers().add(new RecordHeader("messageHeaderId", UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
+        record.headers().add(new RecordHeader("messageHeaderId", "405023815148".getBytes(StandardCharsets.UTF_8)));
 
         SendResult<String, TaskEvent> result = kafkaTemplate.send(record).get();
         logger.info("Partition: " + result.getRecordMetadata().partition());
@@ -87,7 +87,7 @@ public class TaskService {
         logger.info("Serialized key size: " + result.getRecordMetadata().serializedKeySize());
         logger.info("Serialized value size: " + result.getRecordMetadata().serializedValueSize());
         logger.info("Timestamp: " + result.getRecordMetadata().timestamp());
-        logger.info("---sending to task-created-event-topic---" + event);
+        logger.info("---sending to task-created-topic---" + event);
 
         return taskConverter.toTaskResponseDTO(savedEntity);
     }
