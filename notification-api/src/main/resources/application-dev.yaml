@@ -22,7 +22,7 @@ spring:
 #      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
 #      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 #      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      group-id: notification-task-created-group4
+      group-id: task-created-group
 #      auto-offset-reset: earliest
       properties:
         spring:
@@ -49,4 +49,4 @@ spring:
       mail.smtp.starttls.enable: true
 
 server:
-  port: 8082 #port 0 to start more instances of this service if needed
+  port: 8082
