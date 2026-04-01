@@ -3,7 +3,7 @@ spring:
     name: notification-api
 
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:notificationdev
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -20,9 +20,9 @@ spring:
     consumer:
 #      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 #      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
-      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      group-id: notification-product-created-group
+#      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+#      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      group-id: notification-task-created-group4
 #      auto-offset-reset: earliest
       properties:
         spring:
@@ -49,4 +49,4 @@ spring:
       mail.smtp.starttls.enable: true
 
 server:
-  port: 0 #port 0 to start more instances of this service if needed
+  port: 8082 #port 0 to start more instances of this service if needed
