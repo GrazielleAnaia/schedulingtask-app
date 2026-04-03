@@ -5,6 +5,7 @@ import com.grazielleanaia.notification_api.dto.TaskEvent;
 import com.grazielleanaia.notification_api.error.NotRetryableException;
 import com.grazielleanaia.notification_api.error.RetryableException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
@@ -55,7 +57,8 @@ public class KafkaConsumerConfig {
         config.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, environment.getProperty("spring.kafka.consumer.properties.spring.json.trusted.packages"));
         config.put(JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, TaskEvent.class);
         config.put(JacksonJsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        //config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, environment.getProperty("spring.kafka.consumer.auto-offset-reset"));
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, environment.getProperty("spring.kafka.consumer.auto-offset-reset"));
+
         return new DefaultKafkaConsumerFactory<>(config);
     }
 
@@ -70,7 +73,8 @@ public class KafkaConsumerConfig {
                     return new TopicPartition(record.topic() + "-dlt", record.partition());}
                 ); // preserves partition
 
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate),
+        //new DeadLetterPublishingRecoverer(kafkaTemplate) was before with kafkaTemplate
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer,
                 new FixedBackOff(5000, 3));
         errorHandler.addNotRetryableExceptions(IllegalArgumentException.class,
                 HttpServerErrorException.class, NotRetryableException.class); //send  to dead letter topic
@@ -78,6 +82,9 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, TaskEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.setCommonErrorHandler(errorHandler);
+
+        factory.setAutoStartup(true);
+        factory.setMissingTopicsFatal(false);
         return factory;
     }
 
