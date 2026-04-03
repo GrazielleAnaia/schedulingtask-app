@@ -1,18 +1,17 @@
 package com.grazielleanaia.notification_api.business;
 
 import com.grazielleanaia.notification_api.dto.TaskEvent;
-import com.grazielleanaia.notification_api.error.NotRetryableException;
 import com.grazielleanaia.notification_api.io.ProcessedEventEntity;
 import com.grazielleanaia.notification_api.io.ProcessedEventRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 
@@ -30,8 +29,9 @@ public class TaskEventConsumerService {
     }
 
 
+    @Transactional //if it is enabled and DLT triggers, no record is persisted
     @KafkaHandler
-    @KafkaListener(topics = "task-created-topic", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "task1-created-topic", containerFactory = "kafkaListenerContainerFactory")
     public void consume(@Payload TaskEvent taskEvent,
                         @Header(value = "messageHeaderId", required = true) byte[] messageHeaderId,
                         @Header(KafkaHeaders.RECEIVED_KEY) String messageKey) {
@@ -40,25 +40,19 @@ public class TaskEventConsumerService {
 
         //Check if this message was processed before
         String messageId = new String(messageHeaderId, StandardCharsets.UTF_8);
-        ProcessedEventEntity existingRecord = repository.findByMessageId(messageId);
-        if (existingRecord != null) {
-            logger.info("Found existing record {}", existingRecord);
+        //ProcessedEventEntity existingRecord = repository.findByMessageId(messageId);
+        if (repository.findByMessageId(messageId) != null) {
+            logger.info("Found existing record {}", messageId);
             return;
         }
 
         //Save a unique message id into DB. It should handle exception in case the same message is received
-        try {
-            repository.save(new ProcessedEventEntity(messageId, taskEvent.getTaskId()));
-        } catch (DataIntegrityViolationException e) {
-            throw new NotRetryableException(e.getMessage());
-        }
+        repository.save(new ProcessedEventEntity(messageId, taskEvent.getTaskId()));
 
         try {
             emailService.sendNotification(taskEvent);
         } catch (Exception e) {
-            logger.error("Email failed, skipping retry", e);
-            throw new NotRetryableException(e.getMessage());
+            logger.error("Email failed for messageId={}, will NOT retry via kafka", messageId, e);
         }
-
     }
 }

@@ -16,14 +16,12 @@ spring:
     show-sql: true
 
   kafka:
-    bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
+    bootstrap-servers: host.docker.internal:9092,host.docker.internal:9094,host.docker.internal:9096
     consumer:
-#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
-#      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-#      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      group-id: task-created-group
-#      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      group-id: task1-created-group
+      auto-offset-reset: earliest
       properties:
         spring:
           deserializer:
@@ -35,10 +33,10 @@ spring:
                 class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
           json:
             trusted:
-              packages: com.grazielleanaia.notification_api.dto
+              packages: "'com.grazielleanaia.notificationapi.dto','com.grazielleanaia.schedulingapi.business.dto'"
             value:
               default:
-                type: com.grazielleanaia.notification_api.dto.TaskEvent
+                type: com.grazielleanaia.notificationapi.dto.TaskEvent
   mail:
     host: smtp.gmail.com
     port: 587
@@ -50,3 +48,8 @@ spring:
 
 server:
   port: 8082
+
+#logging:
+#  level:
+#    org.apache.kafka.clients.consumer: DEBUG
+#    org.springframework.kafka: DEBUG

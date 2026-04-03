@@ -46,7 +46,7 @@ public class KafkaConfig {
 
     @Bean
     NewTopic createNewTopic() {
-        return TopicBuilder.name("task-created-topic")
+        return TopicBuilder.name("task1-created-topic")
                 .partitions(3)
                 .replicas(3)
                 .configs(Map.of("min.insync.replicas", "2"))
