@@ -1,5 +1,7 @@
 some:
   property: default-value
 
+server:
+  port: 8080
 # Contains properties shared by all profiles
 
