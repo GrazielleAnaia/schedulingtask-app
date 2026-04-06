@@ -1,4 +1,23 @@
 services:
+
+#  registration-api:
+#    image: myorg/registration-api:latest
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=prod
+#      - CONFIG_SERVER_URL=http://configserver:8888
+#
+#    notification-api:
+#      image: myorg/notification-api:latest
+#      environment:
+#        - SPRING_PROFILES_ACTIVE=dev
+#        - CONFIG_SERVER_URL=http://configserver:8888
+#
+#    scheduling-api:
+#      image: myorg/scheduling-api:latest
+#      environment:
+#        - SPRING_PROFILES_ACTIVE=prod
+#        - CONFIG_SERVER_URL=http://configserver:8888
+
   kafka-1:
     image: confluentinc/cp-kafka:latest
     ports:

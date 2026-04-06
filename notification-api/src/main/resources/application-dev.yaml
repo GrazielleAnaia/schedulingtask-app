@@ -1,55 +1,7 @@
 spring:
+#  profiles:
+#    active: dev
   application:
     name: notification-api
-
-  datasource:
-    url: jdbc:h2:mem:notificationdev
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
-  kafka:
-    bootstrap-servers: host.docker.internal:9092,host.docker.internal:9094,host.docker.internal:9096
-    consumer:
-      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      group-id: task1-created-group
-      auto-offset-reset: earliest
-      properties:
-        spring:
-          deserializer:
-            key:
-              delegate:
-                class: org.apache.kafka.common.serialization.StringDeserializer
-            value:
-              delegate:
-                class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
-          json:
-            trusted:
-              packages: "'com.grazielleanaia.notificationapi.dto','com.grazielleanaia.schedulingapi.business.dto'"
-            value:
-              default:
-                type: com.grazielleanaia.notificationapi.dto.TaskEvent
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: grazielle.anaia@gmail.com
-    password: Auriflama*1981
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
-
-server:
-  port: 8082
-
-#logging:
-#  level:
-#    org.apache.kafka.clients.consumer: DEBUG
-#    org.springframework.kafka: DEBUG
+  config:
+    import: optional:configserver:http://localhost:8888

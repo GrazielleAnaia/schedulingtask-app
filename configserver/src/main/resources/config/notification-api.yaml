@@ -1,0 +1,6 @@
+
+some:
+  property: default-value
+
+server:
+  port: 8082

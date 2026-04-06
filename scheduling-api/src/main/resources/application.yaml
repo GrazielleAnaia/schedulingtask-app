@@ -1,6 +1,6 @@
 spring:
-  profiles:
-    active: default
+#  profiles:
+#    active: default
   application:
     name: scheduling-api
   config:
