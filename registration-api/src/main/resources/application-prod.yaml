@@ -1,8 +1,10 @@
 spring:
   profiles:
-    active: default
+    active: prod
   application:
     name: registration-api
   config:
     import: optional:configserver:http://localhost:8888
+
+
 
