@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.mapstruct/mapstruct-processor/1.5.3.Final/dce418bedafd71ff8dd2cef15006c0fee788b073/mapstruct-processor-1.5.3.Final.jar" />
+        </processorPath>
+        <module name="registration-api.main" />
+      </profile>
+    </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="core" target="17" />
       <module name="core.main" target="17" />
@@ -18,6 +27,9 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="configserver" options="-parameters" />
+      <module name="configserver.main" options="-parameters" />
+      <module name="configserver.test" options="-parameters" />
       <module name="notification-api" options="-parameters" />
       <module name="notification-api.main" options="-parameters" />
       <module name="notification-api.test" options="-parameters" />

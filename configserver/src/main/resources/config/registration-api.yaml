@@ -1,0 +1,5 @@
+some:
+  property: default-value
+
+# Contains properties shared by all profiles
+
