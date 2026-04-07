@@ -76,7 +76,7 @@ public class TaskService {
                 savedEntity.getEventDate(), "PENDING");
 
         //Send message synchronously
-        ProducerRecord<String, TaskEvent> record = new ProducerRecord<>("task1-created-topic", event.getTaskId(), event);
+        ProducerRecord<String, TaskEvent> record = new ProducerRecord<>("task-created-topic", event.getTaskId(), event);
         record.headers().add(new RecordHeader("messageHeaderId", UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
 
         SendResult<String, TaskEvent> result = kafkaTemplate.send(record).get();

@@ -1,6 +1,38 @@
+spring:
+  kafka:
+    bootstrap-servers: host.docker.internal:9092,host.docker.internal:9094,host.docker.internal:9096
+    consumer:
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      group-id: task1-created-group
+      auto-offset-reset: earliest
+      properties:
+        spring:
+          deserializer:
+            key:
+              delegate:
+                class: org.apache.kafka.common.serialization.StringDeserializer
+            value:
+              delegate:
+                class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+          json:
+            trusted:
+              packages: "'com.grazielleanaia.notificationapi.dto','com.grazielleanaia.schedulingapi.business.dto'"
+            value:
+              default:
+                type: com.grazielleanaia.notificationapi.dto.TaskEvent
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: grazielle.anaia@gmail.com
+    password: Auriflama*1981
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+server:
+  port: 8082
 
 some:
   property: default-value
 
-server:
-  port: 8082
