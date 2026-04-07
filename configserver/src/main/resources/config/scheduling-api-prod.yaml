@@ -1,0 +1,36 @@
+spring:
+  mongodb:
+    uri: ${MONGO.URI}
+    database: ${MONGO.DATABASE}
+
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      acks: all #no data loss
+      properties:
+        enable:
+          idempotence: true # avoids duplicate messages even if network glitch happens (safe tries)
+        max:
+          in:
+            flight:
+              requests:
+                per:
+                  connection: 5 #how many unacknowledged requests can exist simultaneously per connection
+        delivery:
+          timeout:
+            ms: 120000 #total amount Kafka Producer will try to deliver a message before failing permanently
+        linger:
+          ms: 0 # sends immediately, no batching delay (latency vs throughput)
+        request:
+          timeout:
+            ms: 30000 #broker has 30s to respond to a single request
+server:
+  port: 8081
+
+customer:
+  url: http://localhost:8080
+
+some:
+  property: prod-value
