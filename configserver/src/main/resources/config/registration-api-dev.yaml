@@ -13,3 +13,9 @@ spring:
       path: /h2-console
 some:
   property: dev-value
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info

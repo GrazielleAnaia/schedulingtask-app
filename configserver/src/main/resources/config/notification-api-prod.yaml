@@ -41,7 +41,13 @@ spring:
       mail.smtp.starttls.enable: true
 
 server:
-  port: 8082 #port 0 to start more instances of this service if needed
+  port: 0
 
 some:
   property: prod-value
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info

@@ -34,3 +34,9 @@ customer:
 
 some:
   property: default-value
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info

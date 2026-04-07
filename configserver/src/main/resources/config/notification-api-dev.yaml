@@ -49,6 +49,12 @@ server:
 some:
   property: dev-value
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info
+
 #logging:
 #  level:
 #    org.apache.kafka.clients.consumer: DEBUG
