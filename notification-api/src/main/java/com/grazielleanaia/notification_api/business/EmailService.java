@@ -1,10 +1,13 @@
 package com.grazielleanaia.notification_api.business;
 
 import com.grazielleanaia.notification_api.dto.TaskEvent;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+
+@RefreshScope
 @Service
 public class EmailService {
 
