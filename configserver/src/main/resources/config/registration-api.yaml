@@ -5,3 +5,8 @@ server:
   port: 8080
 # Contains properties shared by all profiles
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info,env

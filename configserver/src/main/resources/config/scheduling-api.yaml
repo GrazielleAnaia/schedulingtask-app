@@ -27,10 +27,17 @@ spring:
           timeout:
             ms: 30000 #broker has 30s to respond to a single request
 server:
-  port: 8081
+  port: 8083
 
 customer:
   url: http://localhost:8080
 
 some:
   property: default-value
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info,env
+

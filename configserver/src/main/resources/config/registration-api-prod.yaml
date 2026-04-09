@@ -14,3 +14,12 @@ spring:
       ddl-auto: update
 some:
   property: prod-value
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info,env
+
+server:
+  port: 8082
