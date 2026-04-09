@@ -31,7 +31,7 @@ spring:
       mail.smtp.starttls.enable: true
 
 server:
-  port: 8082
+  port: 8085
 
 some:
   property: default-value
@@ -40,4 +40,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh,health,info
+        include: refresh,health,info,env

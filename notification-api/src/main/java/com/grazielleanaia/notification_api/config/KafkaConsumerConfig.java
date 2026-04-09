@@ -5,7 +5,6 @@ import com.grazielleanaia.notification_api.dto.TaskEvent;
 import com.grazielleanaia.notification_api.error.NotRetryableException;
 import com.grazielleanaia.notification_api.error.RetryableException;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
@@ -30,6 +28,7 @@ import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
 import java.util.Map;
+
 
 @Configuration
 public class KafkaConsumerConfig {
@@ -70,8 +69,9 @@ public class KafkaConsumerConfig {
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
                 (record, ex) -> {
                     logger.error("Sending message {} to DLT due to {}", record.key(), ex.getMessage());
-                    return new TopicPartition(record.topic() + "-dlt", record.partition());}
-                ); // preserves partition
+                    return new TopicPartition(record.topic() + "-dlt", record.partition());
+                }
+        ); // preserves partition
 
         //new DeadLetterPublishingRecoverer(kafkaTemplate) was before with kafkaTemplate
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer,
