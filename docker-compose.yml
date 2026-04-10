@@ -81,6 +81,21 @@ networks:
   kafka-net:
     driver: bridge
 
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:4-management
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - backend
+    restart: unless-stopped
+
 #  postgres:
 #    container_name: postgres
 #    image: postgres:14
@@ -115,6 +130,7 @@ networks:
 #volumes:
 #  postgres:
 #  pgadmin:
+#  rabbitmq_data:
 
 #networks:
 #  backend:

@@ -1,4 +1,11 @@
 spring:
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   mongodb:
     uri: ${MONGO_URI}
     database: ${MONGO_DATABASE}
@@ -30,7 +37,7 @@ server:
   port: 8084
 
 customer:
-  url: http://localhost:8081 #points to registration-api dev port 8081
+  url: http://localhost:8880 #points to registration-api dev port 8081
 
 management:
   endpoint:
@@ -40,9 +47,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: busrefresh,refresh,health,info,env
 some:
-  property: prod-value
+  property: dev-value
 
 client:
   type: feign
