@@ -15,10 +15,15 @@ some:
   property: dev-value
 
 management:
+  endpoint:
+    env:
+      show-values: always
+      show-components: always
   endpoints:
     web:
       exposure:
-        include: refresh,health,info,env
+        include: "*"
+
 
 server:
   port: 8081

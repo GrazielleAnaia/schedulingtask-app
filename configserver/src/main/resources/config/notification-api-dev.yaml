@@ -44,12 +44,15 @@ spring:
       mail.smtp.starttls.enable: true
 
 server:
-  port: 8086
+  port: 8087
 
 some:
   property: dev-value
 
 management:
+  endpoint:
+    env:
+      show-values: ALWAYS
   endpoints:
     web:
       exposure:

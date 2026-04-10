@@ -41,7 +41,7 @@ spring:
       mail.smtp.starttls.enable: true
 
 server:
-  port: 8087
+  port: 8088
 
 some:
   property: prod-value
