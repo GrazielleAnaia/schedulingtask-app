@@ -1,4 +1,10 @@
 spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   datasource:
     url: jdbc:postgresql://localhost:5432/registration
     username:
@@ -19,7 +25,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh,health,info,env
+        include: busrefresh,refresh,health,info,env
 
 server:
   port: 8082
