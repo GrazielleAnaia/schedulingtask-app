@@ -1,4 +1,10 @@
 spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   mongodb:
     uri: ${MONGO_URI}
     database: ${MONGO_DATABASE}
@@ -40,7 +46,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: busrefresh,refresh,health,info,env
 some:
   property: prod-value
 

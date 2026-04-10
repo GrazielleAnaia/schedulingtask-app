@@ -1,4 +1,10 @@
 spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   datasource:
     url: jdbc:h2:mem:notificationdev
     driver-class-name: org.h2.Driver
@@ -52,11 +58,11 @@ some:
 management:
   endpoint:
     env:
-      show-values: ALWAYS
+      show-values: always
   endpoints:
     web:
       exposure:
-        include: refresh,health,info,env
+        include: busrefresh,refresh,health,info,env
 
 #logging:
 #  level:
