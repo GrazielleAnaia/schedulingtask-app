@@ -27,7 +27,7 @@ spring:
           timeout:
             ms: 30000 #broker has 30s to respond to a single request
 server:
-  port: 8085
+  port: 8084
 
 customer:
   url: http://localhost:8081 #points to registration-api dev port 8081
