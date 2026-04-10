@@ -35,13 +35,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-kafka'
 	testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
 
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
 
+	//implementation 'org.springframework.boot:spring-boot-starter-restclient'
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-mongodb-test'
 	//testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	//testImplementation 'org.springframework.boot:spring-boot-starter-restclient-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

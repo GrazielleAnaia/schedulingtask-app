@@ -30,7 +30,7 @@ server:
   port: 8083
 
 customer:
-  url: http://localhost:8080
+  url: http://localhost:8080 #points to registration-api default port 8080
 
 some:
   property: default-value
