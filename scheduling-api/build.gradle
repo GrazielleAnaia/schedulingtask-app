@@ -33,6 +33,7 @@ dependencies {
 	//implementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	implementation 'org.springframework.boot:spring-boot-starter-kafka'
+	implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
 	testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
