@@ -1,5 +1,4 @@
 spring:
-
   rabbitmq:
     host: localhost
     port: 5672
@@ -37,7 +36,7 @@ server:
   port: 8084
 
 customer:
-  url: http://localhost:8880 #points to registration-api dev port 8081
+  url: http://localhost:8081 #points to registration-api-dev port 8081
 
 management:
   endpoint:
@@ -53,3 +52,7 @@ some:
 
 client:
   type: feign
+
+logging:
+  level:
+    root: INFO

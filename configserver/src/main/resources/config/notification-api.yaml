@@ -1,4 +1,9 @@
 spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
   kafka:
     bootstrap-servers: host.docker.internal:9092,host.docker.internal:9094,host.docker.internal:9096
     consumer:
@@ -40,4 +45,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh,health,info,env
+        include: busrefresh,refresh,health,info,env
