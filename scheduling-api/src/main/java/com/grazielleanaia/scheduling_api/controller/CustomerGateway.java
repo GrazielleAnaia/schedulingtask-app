@@ -21,6 +21,7 @@ public class CustomerGateway {
     private String clientType;
 
     public CustomerGateway(CustomerClient feignClient, HttpCustomerClient httpClient) {
+        logger.info(">>> CustomerGateway CREATED <<<");
         this.feignClient = feignClient;
         this.httpClient = httpClient;
     }

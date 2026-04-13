@@ -55,4 +55,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh,health,info,env
+        include: busrefresh,refresh,health,info,env
