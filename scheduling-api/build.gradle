@@ -27,13 +27,14 @@ dependencies {
 	//implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	//implementation("io.jsonwebtoken:jjwt-api:0.13.0")
 	//implementation("io.jsonwebtoken:jjwt-impl:0.13.0")
 	//implementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	implementation 'org.springframework.boot:spring-boot-starter-kafka'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+	implementation 'org.springframework.cloud:spring-cloud-bus' //logic
 	testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
