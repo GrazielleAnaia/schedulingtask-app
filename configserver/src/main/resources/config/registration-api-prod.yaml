@@ -18,14 +18,22 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: update
-some:
-  property: prod-value
 
 management:
   endpoints:
     web:
       exposure:
         include: busrefresh,refresh,health,info,env
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+some:
+  property: prod-value
 
 server:
   port: 8082

@@ -35,14 +35,21 @@ spring:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
 
-server:
-  port: 8086
-
-some:
-  property: default-value
-
 management:
   endpoints:
     web:
       exposure:
         include: busrefresh,refresh,health,info,env
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+server:
+  port: 8086
+
+some:
+  property: default-value
