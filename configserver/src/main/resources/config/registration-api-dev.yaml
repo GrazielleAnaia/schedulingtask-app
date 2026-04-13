@@ -17,8 +17,6 @@ spring:
     console:
       enabled: true
       path: /h2-console
-some:
-  property: dev-value
 
 management:
   endpoint:
@@ -29,7 +27,15 @@ management:
     web:
       exposure:
         include: busrefresh,refresh,health,info,env
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
 
+some:
+  property: dev-value
 
 server:
   port: 8081

@@ -31,18 +31,27 @@ spring:
         request:
           timeout:
             ms: 30000 #broker has 30s to respond to a single request
-server:
-  port: 8083
 
-customer:
-  url: http://localhost:8080 #points to registration-api default port 8080
-
-some:
-  property: default-value
 
 management:
   endpoints:
     web:
       exposure:
         include: refresh,health,info,env
+
+customer:
+  url: http://localhost:8080 #points to registration-api default port 8080
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+server:
+  port: 8083
+
+some:
+  property: default-value
 
