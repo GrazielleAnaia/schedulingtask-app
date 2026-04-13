@@ -36,7 +36,7 @@ server:
   port: 8085
 
 customer:
-  url: http://localhost:8081 #points to registration-api dev port 8081
+  url: http://localhost:8082 #points to registration-api-prod port 8082
 
 management:
   endpoint:
@@ -52,3 +52,7 @@ some:
 
 client:
   type: feign
+
+logging:
+  level:
+    root: INFO
