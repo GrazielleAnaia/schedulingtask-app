@@ -2,6 +2,7 @@ package com.grazielleanaia.scheduling_api.business;
 
 import com.grazielleanaia.scheduling_api.business.dto.*;
 import com.grazielleanaia.scheduling_api.business.mapper.TaskConverter;
+import com.grazielleanaia.scheduling_api.controller.CustomerGateway;
 import com.grazielleanaia.scheduling_api.infrastructure.client.CustomerClient;
 import com.grazielleanaia.scheduling_api.infrastructure.entity.TaskEntity;
 import com.grazielleanaia.scheduling_api.infrastructure.enums.NotificationStatusEnum;
@@ -11,6 +12,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+@RefreshScope
 @Service
 
 public class TaskService {
@@ -42,24 +45,29 @@ public class TaskService {
 
     private final CustomerClient customerClient;
 
+    private final CustomerGateway customerGateway;
+
     private final KafkaTemplate<String, TaskEvent> kafkaTemplate;
 
     private Logger logger = LoggerFactory.getLogger(TaskService.class);
 
     public TaskService(TaskRepository taskRepository, TaskConverter taskConverter,
-                       MongoTemplate mongoTemplate, CustomerClient customerClient, KafkaTemplate<String, TaskEvent> kafkaTemplate) {
+                       MongoTemplate mongoTemplate, CustomerClient customerClient,
+                       KafkaTemplate<String, TaskEvent> kafkaTemplate,
+                       CustomerGateway customerGateway) {
         this.taskRepository = taskRepository;
         this.taskConverter = taskConverter;
         this.mongoTemplate = mongoTemplate;
         this.customerClient = customerClient;
         this.kafkaTemplate = kafkaTemplate;
+        this.customerGateway = customerGateway;
     }
 
     //Ok
     @Transactional
     public TaskResponseDTO createTask(TaskRequestDTO request, Long customerId) throws ExecutionException, InterruptedException {
         //Validate customer exists with FeignClient
-        CustomerResponseDTO customerResponseDTO = customerClient.findCustomerById(customerId);
+        CustomerResponseDTO customerResponseDTO = customerGateway.findCustomerById(customerId); //customerGateway decides feign or http client type
 
         TaskEntity entity = taskConverter.toTaskEntity(request);
         entity.setCustomerId(customerId);
@@ -76,7 +84,7 @@ public class TaskService {
                 savedEntity.getEventDate(), "PENDING");
 
         //Send message synchronously
-        ProducerRecord<String, TaskEvent> record = new ProducerRecord<>("task1-created-topic", event.getTaskId(), event);
+        ProducerRecord<String, TaskEvent> record = new ProducerRecord<>("task-created-topic", event.getTaskId(), event);
         record.headers().add(new RecordHeader("messageHeaderId", UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
 
         SendResult<String, TaskEvent> result = kafkaTemplate.send(record).get();

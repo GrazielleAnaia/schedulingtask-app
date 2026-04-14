@@ -5,6 +5,7 @@ import com.grazielleanaia.notification_api.io.ProcessedEventEntity;
 import com.grazielleanaia.notification_api.io.ProcessedEventRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 
-
+@RefreshScope
 @Component
 public class TaskEventConsumerService {
 
@@ -31,7 +32,7 @@ public class TaskEventConsumerService {
 
     @Transactional //if it is enabled and DLT triggers, no record is persisted
     @KafkaHandler
-    @KafkaListener(topics = "task1-created-topic", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "task-created-topic", containerFactory = "kafkaListenerContainerFactory")
     public void consume(@Payload TaskEvent taskEvent,
                         @Header(value = "messageHeaderId", required = true) byte[] messageHeaderId,
                         @Header(KafkaHeaders.RECEIVED_KEY) String messageKey) {
