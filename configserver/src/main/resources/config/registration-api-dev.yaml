@@ -1,4 +1,10 @@
 spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
@@ -6,10 +12,30 @@ spring:
     driver-class-name: org.h2.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   h2:
     console:
       enabled: true
       path: /h2-console
+
+management:
+  endpoint:
+    env:
+      show-values: always
+      show-components: always
+  endpoints:
+    web:
+      exposure:
+        include: busrefresh,refresh,health,info,env
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
 some:
   property: dev-value
+
+server:
+  port: 8081

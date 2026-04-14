@@ -1,4 +1,23 @@
 services:
+
+#  registration-api:
+#    image: myorg/registration-api:latest
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=prod
+#      - CONFIG_SERVER_URL=http://configserver:8888
+#
+#    notification-api:
+#      image: myorg/notification-api:latest
+#      environment:
+#        - SPRING_PROFILES_ACTIVE=dev
+#        - CONFIG_SERVER_URL=http://configserver:8888
+#
+#    scheduling-api:
+#      image: myorg/scheduling-api:latest
+#      environment:
+#        - SPRING_PROFILES_ACTIVE=prod
+#        - CONFIG_SERVER_URL=http://configserver:8888
+
   kafka-1:
     image: confluentinc/cp-kafka:latest
     ports:
@@ -62,41 +81,57 @@ networks:
   kafka-net:
     driver: bridge
 
-  postgres:
-    container_name: postgres
-    image: postgres:14
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:4-management
     environment:
-      POSTGRES_USER: ${POSTGRES.USER}
-      POSTGRES_PASSWORD: ${POSTGRES.PASSWORD}
-      PGDATA: /data/postgres
-    volumes:
-      - postgres:/data/postgres
-      - ./init-multi-db-sql:/docker-entrypoint-init-db.d/init.sql
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     ports:
-      - "5432:5432"
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - backend
     restart: unless-stopped
 
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    volumes:
-      - pgadmin:/var/lib/pgadmin
-    ports:
-      - "5050:80"
-    networks:
-      - backend
-    restart: unless-stopped
+#  postgres:
+#    container_name: postgres
+#    image: postgres:14
+#    environment:
+#      POSTGRES_USER: ${POSTGRES.USER}
+#      POSTGRES_PASSWORD: ${POSTGRES.PASSWORD}
+#      PGDATA: /data/postgres
+#    volumes:
+#      - postgres:/data/postgres
+#      - ./init-multi-db-sql:/docker-entrypoint-init-db.d/init.sql
+#    ports:
+#      - "5432:5432"
+#    networks:
+#      - backend
+#    restart: unless-stopped
+#
+#  pgadmin:
+#    container_name: pgadmin_container
+#    image: dpage/pgadmin4
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+#      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+#      PGADMIN_CONFIG_SERVER_MODE: 'False'
+#    volumes:
+#      - pgadmin:/var/lib/pgadmin
+#    ports:
+#      - "5050:80"
+#    networks:
+#      - backend
+#    restart: unless-stopped
+#
+#volumes:
+#  postgres:
+#  pgadmin:
+#  rabbitmq_data:
 
-volumes:
-  postgres:
-  pgadmin:
-
-networks:
-  backend:
-    driver: bridge
+#networks:
+#  backend:
+#    driver: bridge

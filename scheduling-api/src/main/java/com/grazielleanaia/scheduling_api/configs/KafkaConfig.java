@@ -14,6 +14,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @Configuration
 public class KafkaConfig {
 
@@ -46,7 +47,7 @@ public class KafkaConfig {
 
     @Bean
     NewTopic createNewTopic() {
-        return TopicBuilder.name("task1-created-topic")
+        return TopicBuilder.name("task-created-topic")
                 .partitions(3)
                 .replicas(3)
                 .configs(Map.of("min.insync.replicas", "2"))
