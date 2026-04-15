@@ -1,7 +1,50 @@
 spring:
+
+#  kafka:
+#    bootstrap-servers: host.docker.internal:9092,host.docker.internal:9094,host.docker.internal:9096
+#    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+#      acks: all #no data loss
+#      properties:
+#        enable:
+#          idempotence: true # avoids duplicate messages even if network glitch happens (safe tries)
+#        max:
+#          in:
+#            flight:
+#              requests:
+#                per:
+#                  connection: 5 #how many unacknowledged requests can exist simultaneously per connection
+#        delivery:
+#          timeout:
+#            ms: 120000 #total amount Kafka Producer will try to deliver a message before failing permanently
+#        linger:
+#          ms: 0 # sends immediately, no batching delay (latency vs throughput)
+#        request:
+#          timeout:
+#            ms: 30000 #broker has 30s to respond to a single request
+
+#  cloud:
+#    config:
+#      enabled: false
 #  profiles:
 #    active: default
   application:
     name: scheduling-api
-  config:
-    import: optional:configserver:http://localhost:8888
+#  config:
+#    import: optional:configserver:http://localhost:8888
+
+#eureka:
+#  instance:
+#    hostname: localhost
+#    ip-address: 127.0.0.1
+#    prefer-ip-address: true
+#    instance-id: ${spring.application.name}:${server.port}
+#  client:
+#    serviceUrl:
+#      defaultZone: http://localhost:8761/eureka/
+#    register-with-eureka: true
+#    fetch-registry: true
+
+#server:
+#  port: 8083
