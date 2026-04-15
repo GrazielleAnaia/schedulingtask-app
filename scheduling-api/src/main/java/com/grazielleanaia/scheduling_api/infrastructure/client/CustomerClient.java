@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+//url = "${customer.url}"
+
 @RefreshScope
-@FeignClient(name = "registration-api", url = "${customer.url}", path = "/api/customers")
+@FeignClient(name = "REGISTRATION-API", path = "/api/customers")
 public interface CustomerClient {
 
     @GetMapping("/by-email")
