@@ -32,27 +32,26 @@ spring:
           timeout:
             ms: 30000 #broker has 30s to respond to a single request
 
-
 management:
   endpoints:
     web:
       exposure:
-        include: refresh,health,info,env
+        include: busrefresh,refresh,health,info,env
 
 #customer:
 #  url: http://localhost:8080 #points to registration-api default port 8080
 
-#eureka:
-#  instance:
-#    hostname: localhost
-#    ip-address: 127.0.0.1
-#    prefer-ip-address: true
-#    instance-id: ${spring.application.name}:${server.port}
-#  client:
-#    serviceUrl:
-#      defaultZone: http://localhost:8761/eureka/
-#    register-with-eureka: true
-#    fetch-registry: true
+eureka:
+  instance:
+    hostname: localhost
+    ip-address: 127.0.0.1
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
 
 server:
   port: 8083
