@@ -4,6 +4,7 @@ spring:
     port: 5672
     username: guest
     password: guest
+
   kafka:
     bootstrap-servers: host.docker.internal:9092,host.docker.internal:9094,host.docker.internal:9096
     consumer:
@@ -26,6 +27,7 @@ spring:
             value:
               default:
                 type: com.grazielleanaia.notificationapi.dto.TaskEvent
+
   mail:
     host: smtp.gmail.com
     port: 587
