@@ -47,7 +47,7 @@ management:
         include: busrefresh,refresh,health,info,env
 
 client:
-  type: feign
+  type: http
 
 eureka:
   instance:
@@ -69,4 +69,4 @@ server:
 
 logging:
   level:
-    root: INFO
+    com.netflix.discovery: DEBUG
