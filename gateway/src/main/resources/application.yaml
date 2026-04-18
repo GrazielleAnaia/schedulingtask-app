@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: registration-api
+          uri: http://localhost:8080
+          predicates:
+            - Path=/api/customers/**
+
+logging:
+  level:
+    root: info
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: INFO
+    org.springframework.cloud.gateway: TRACE
+
+server:
+  port: 8880
