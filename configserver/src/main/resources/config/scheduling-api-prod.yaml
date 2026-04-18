@@ -42,6 +42,8 @@ management:
     env:
       show-values: always
       show-components: always
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
@@ -51,12 +53,16 @@ client:
   type: feign
 
 eureka:
+  server:
+    enable-self-preservation: true #keep instances temporarily
   instance:
     hostname: localhost
     ip-address: 127.0.0.1
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
   client:
+    healthcheck:
+      enabled: true
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
