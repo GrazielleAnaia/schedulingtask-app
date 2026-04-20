@@ -12,11 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RefreshScope
+@Validated
 @RestController
-@RequestMapping("/api/customers")
+@RequestMapping("/api/v1/customers")
 
 public class CustomerController {
 
@@ -28,30 +30,26 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    //Ok
     @PostMapping
     public ResponseEntity<CustomerResponseDTO> createCustomer(@Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
         CustomerResponseDTO dto = customerService.createCustomer(customerRequestDTO);
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
-    //Ok
-    @GetMapping("/by-email")
-    public ResponseEntity<CustomerResponseDTO> findCustomerByEmail(@RequestParam("email") String email) {
+    @GetMapping(params = "email")
+    public ResponseEntity<CustomerResponseDTO> findCustomerByEmail(@RequestParam("email") @Email String email) {
         logger.info("Getting customer by email: {}", email);
         return ResponseEntity.ok(customerService.getCustomerByEmail(email));
     }
 
-    //Ok
-    @GetMapping("/{id}")
-    public ResponseEntity<CustomerResponseDTO> findCustomerById(@PathVariable("id") Long id) {
-        logger.info("Getting customer by id: {}", id);
-        CustomerResponseDTO dto = customerService.getCustomerById(id);
+    @GetMapping("/{customerId}")
+    public ResponseEntity<CustomerResponseDTO> findCustomerById(@PathVariable("customerId") Long customerId) {
+        logger.info("Getting customer by id: {}", customerId);
+        CustomerResponseDTO dto = customerService.getCustomerById(customerId);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    //Ok
-    @GetMapping
+    @GetMapping(params = "!email")
     public ResponseEntity<PageResponse> findAllCustomers(
             @RequestParam(name = "pageNumber", defaultValue = AppConstant.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstant.PAGE_SIZE, required = false) Integer pageSize,
@@ -67,32 +65,29 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCurrentCustomer(email));
     }
 
-
     //Customer self-deletion -- system should determine the user from authentication (JWT or gateway)
     //Ok
     @DeleteMapping("/me")
-    public ResponseEntity<Void> deleteMyAccount(@Email(message = "Invalid email format")
-                                                @RequestParam("email") String email) {
+    public ResponseEntity<Void> deleteMyAccount(@RequestHeader("X-User-Email")
+                                                @Email(message = "Invalid email format") String email) {
         customerService.deleteCustomerByEmail(email);
         return ResponseEntity.noContent().build();
     }
 
     //Delete Customer by Admin
     //Ok
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomerByAdmin(@PathVariable Long id) {
-        customerService.deleteCustomerById(id);
+    @DeleteMapping("/{customerId}")
+    public ResponseEntity<Void> deleteCustomerByAdmin(@PathVariable Long customerId) {
+        customerService.deleteCustomerById(customerId);
         return ResponseEntity.noContent().build();
     }
 
-    //Ok
     @PutMapping("/{customerId}")
     public ResponseEntity<CustomerResponseDTO> updateCustomer(@Valid @RequestBody CustomerRequestDTO customerRequestDTO,
                                                               @PathVariable Long customerId) {
         return ResponseEntity.ok(customerService.updateCustomer(customerRequestDTO, customerId));
     }
 
-    //Ok
     @PutMapping("/{customerId}/addresses/{addressId}")
     public ResponseEntity<AddressResponseDTO> updateCustomerAddress(@RequestBody AddressRequestDTO addressDTO,
                                                                     @PathVariable Long customerId,
@@ -100,7 +95,6 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.updateAddress(addressDTO, customerId, addressId));
     }
 
-    //Ok
     @PutMapping("/{customerId}/phones/{phoneId}")
     public ResponseEntity<PhoneResponseDTO> updateCustomerPhone(@RequestBody PhoneRequestDTO phoneDTO,
                                                                 @PathVariable Long customerId,
@@ -109,7 +103,6 @@ public class CustomerController {
         return new ResponseEntity<>(phoneDTO1, HttpStatus.OK);
     }
 
-    //Ok
     @PostMapping("/{customerId}/addresses")
     public ResponseEntity<AddressResponseDTO> addCustomerAddress(@RequestBody AddressRequestDTO addressDTO,
                                                                  @PathVariable Long customerId) {
@@ -117,7 +110,6 @@ public class CustomerController {
         return new ResponseEntity<>(addressDTO1, HttpStatus.CREATED);
     }
 
-    //Ok
     @PostMapping("/{customerId}/phones")
     public ResponseEntity<PhoneResponseDTO> addCustomerPhone(@RequestBody PhoneRequestDTO phoneDTO,
                                                              @PathVariable Long customerId) {
@@ -125,7 +117,6 @@ public class CustomerController {
         return new ResponseEntity<>(phoneDTO1, HttpStatus.CREATED);
     }
 
-    //Ok
     @PatchMapping("/{customerId}/status")
     public ResponseEntity<Void> updateCustomerStatus(@PathVariable Long customerId,
                                                      @RequestParam CustomerStatus status) {
@@ -134,6 +125,7 @@ public class CustomerController {
     }
 
     //Load balancers and Kubernetes require health checks
+    //Not tested
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("OK");
