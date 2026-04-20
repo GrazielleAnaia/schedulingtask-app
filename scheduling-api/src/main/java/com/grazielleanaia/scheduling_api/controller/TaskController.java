@@ -18,7 +18,6 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @RequestMapping("/api")
 
-
 public class TaskController {
 
     private final TaskService taskService;

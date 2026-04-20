@@ -3,17 +3,42 @@ spring:
     name: gateway
 
   cloud:
+    config:
+      enabled: false
     gateway:
-      routes:
-        - id: registration-api
-          uri: http://localhost:8080
-          predicates:
-            - Path=/api/customers/**
+      server:
+        webflux:
+          routes:
+            - id: registration-api
+#              uri: http://localhost:8080
+              uri: lb://REGISTRATION-API
+              predicates:
+                - Path=/api/customers/**, /api/customers
 
+eureka:
+  instance:
+    hostname: localhost
+    ip-address: 127.0.0.1
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+management:
+  endpoint:
+    gateway:
+      access: read-only
+  endpoints:
+    web:
+      exposure:
+        include: gateway
 logging:
   level:
     root: info
-    org.springframework.cloud.gateway.route.RouteDefinitionLocator: INFO
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: TRACE
     org.springframework.cloud.gateway: TRACE
 
 server:
