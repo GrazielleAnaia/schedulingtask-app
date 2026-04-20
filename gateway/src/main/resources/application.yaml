@@ -13,7 +13,11 @@ spring:
 #              uri: http://localhost:8080
               uri: lb://REGISTRATION-API
               predicates:
-                - Path=/api/customers/**, /api/customers
+                - Path=/api/v1/customers, /api/v1/customers/{customerId}, /api/v1/customers/me, /api/v1/customers/{customerId}/addresses/**, /api/v1/customers/{customerId}/phones/**, /api/v1/customers/{customerId}/status
+            - id: scheduling-api
+              uri: lb://SCHEDULING-API
+              predicates:
+                - Path=/api/v1/customers/{customerId}/tasks/**, /api/v1/admin/tasks
 
 eureka:
   instance:
