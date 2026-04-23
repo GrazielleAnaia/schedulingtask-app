@@ -4,6 +4,7 @@ spring:
     port: 5672
     username: guest
     password: guest
+
   kafka:
     bootstrap-servers: host.docker.internal:9092,host.docker.internal:9094,host.docker.internal:9096
     consumer:
@@ -26,6 +27,7 @@ spring:
             value:
               default:
                 type: com.grazielleanaia.notificationapi.dto.TaskEvent
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -42,6 +44,11 @@ management:
         include: busrefresh,refresh,health,info,env
 
 eureka:
+  instance:
+    hostname: localhost
+    ip-address: 127.0.0.1
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/

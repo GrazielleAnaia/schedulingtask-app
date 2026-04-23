@@ -5,28 +5,40 @@ spring:
     username: guest
     password: guest
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/registration
-    username:
-    password:
-  jpa:
-    database: POSTGRESQL
-    show-sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    properties:
-      hibernate:
-        format_sql: true
-    hibernate:
-      ddl-auto: update
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/registration
+#    username:
+#    password:
+#  jpa:
+#    database: POSTGRESQL
+#    show-sql: true
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#    properties:
+#      hibernate:
+#        format_sql: true
+#    hibernate:
+#      ddl-auto: update
 
 management:
   endpoints:
     web:
       exposure:
         include: busrefresh,refresh,health,info,env
+  endpoint:
+    health:
+      show-details: always
 
 eureka:
+  server:
+    enable-self-preservation: true #keep instances temporarily
+  instance:
+    hostname: localhost
+    ip-address: 127.0.0.1
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
   client:
+    healthcheck:
+      enabled: true
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true

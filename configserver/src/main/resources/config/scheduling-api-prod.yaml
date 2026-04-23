@@ -10,7 +10,7 @@ spring:
     database: ${MONGO_DATABASE}
 
   kafka:
-    bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
+    bootstrap-servers: host.docker.internal:9092,host.docker.internal:9094,host.docker.internal:9096
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
@@ -34,14 +34,16 @@ spring:
             ms: 30000 #broker has 30s to respond to a single request
 
 
-customer:
-  url: http://localhost:8082 #points to registration-api-prod port 8082
+#customer:
+#  url: http://localhost:8082 #points to registration-api-prod port 8082
 
 management:
   endpoint:
     env:
       show-values: always
       show-components: always
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
@@ -51,7 +53,16 @@ client:
   type: feign
 
 eureka:
+  server:
+    enable-self-preservation: true #keep instances temporarily
+  instance:
+    hostname: localhost
+    ip-address: 127.0.0.1
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
   client:
+    healthcheck:
+      enabled: true
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
