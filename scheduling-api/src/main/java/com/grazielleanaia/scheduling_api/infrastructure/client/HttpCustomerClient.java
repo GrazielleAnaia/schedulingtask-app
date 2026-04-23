@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 
-@HttpExchange("/api/customers")
+@HttpExchange("/api/v1/customers")
 public interface HttpCustomerClient {
 
-    @GetExchange("/by-email")
+    @GetExchange()
     CustomerDTO findCustomerByEmail(@RequestParam("email") String email);
 
-    @GetExchange("/{id}")
-    CustomerResponseDTO findCustomerById(@PathVariable("id") Long customerId);
+    @GetExchange("/{customerId}")
+    CustomerResponseDTO findCustomerById(@PathVariable("customerId") Long customerId);
 }

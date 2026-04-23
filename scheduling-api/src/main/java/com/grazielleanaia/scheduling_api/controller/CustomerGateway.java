@@ -17,6 +17,7 @@ public class CustomerGateway {
     private final CustomerClient feignClient; //static
     private final HttpCustomerClient httpClient; //RestClient (dynamic baseUrl)
     private final Logger logger = LoggerFactory.getLogger(CustomerGateway.class);
+
     @Value("${client.type:feign}")
     private String clientType;
 

@@ -9,13 +9,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+//url = "${customer.url}"
+
 @RefreshScope
-@FeignClient(name = "registration-api", url = "${customer.url}", path = "/api/customers")
+@FeignClient(name = "REGISTRATION-API", path = "/api/v1/customers")
 public interface CustomerClient {
 
-    @GetMapping("/by-email")
+    @GetMapping(params = "email")
     CustomerDTO findCustomerByEmail(@RequestParam("email") String email);
 
-    @GetMapping("/{id}")
-    CustomerResponseDTO findCustomerById(@PathVariable("id") Long customerId);
+    @GetMapping("/{customerId}")
+    CustomerResponseDTO findCustomerById(@PathVariable("customerId") Long customerId);
 }

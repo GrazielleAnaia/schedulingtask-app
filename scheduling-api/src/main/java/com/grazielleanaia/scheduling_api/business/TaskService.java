@@ -102,10 +102,10 @@ public class TaskService {
 
     //Ok
     @Transactional
-    public void softDeleteTask(String id, Long customerId) {
-        TaskEntity entity = taskRepository.findByIdAndCustomerIdAndDeletedFalse(id,
+    public void softDeleteTask(String taskId, Long customerId) {
+        TaskEntity entity = taskRepository.findByIdAndCustomerIdAndDeletedFalse(taskId,
                         customerClient.findCustomerById(customerId).getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task with id " + taskId + " not found"));
         entity.setDeleted(true);
         entity.setUpdatedAt(Instant.now());
         entity.setNotificationStatusEnum(NotificationStatusEnum.CANCELLED);
@@ -146,9 +146,9 @@ public class TaskService {
 
     //Ok
     @Transactional
-    public TaskResponseDTO updateTask(Long customerId, String id, TaskUpdateDTO taskUpdateDTO) {
-        TaskEntity taskEntity = taskRepository.findByIdAndCustomerIdAndDeletedFalse(id, customerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id + "" +
+    public TaskResponseDTO updateTask(Long customerId, String taskId, TaskUpdateDTO taskUpdateDTO) {
+        TaskEntity taskEntity = taskRepository.findByIdAndCustomerIdAndDeletedFalse(taskId, customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId + "" +
                         " or customer not found " + customerId));
         taskConverter.updateTask(taskEntity, taskUpdateDTO);
         taskEntity.setNotificationStatusEnum(NotificationStatusEnum.MODIFIED);

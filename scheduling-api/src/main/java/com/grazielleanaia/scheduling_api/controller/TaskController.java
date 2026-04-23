@@ -16,8 +16,7 @@ import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 @RestController
-@RequestMapping("/api")
-
+@RequestMapping("/api/v1")
 
 public class TaskController {
 
@@ -35,7 +34,7 @@ public class TaskController {
     }
 
     //Pagination returns all data regardless status
-    @GetMapping("/admin/all/tasks")
+    @GetMapping("/admin/tasks")
     public ResponseEntity<TaskResponse> findAllTaskList(
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
@@ -45,7 +44,7 @@ public class TaskController {
     }
 
     //Pagination returns specific active customer data
-    @GetMapping("/customers/{customerId}/tasks")
+    @GetMapping(value = "/customers/{customerId}/tasks", params = {"!initialDate", "!finalDate", "!status"})
     public ResponseEntity<TaskResponse> findTaskListByCustomerId(@PathVariable Long customerId,
                                                                  @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
                                                                  @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
@@ -54,7 +53,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.findTaskListByCustomerId(customerId, pageNumber, pageSize, sortBy, sortOrder));
     }
 
-    @GetMapping("/customers/{customerId}/pending-tasks")
+    @GetMapping(value = "/customers/{customerId}/tasks", params = {"initialDate", "finalDate", "status=PENDING"})
     public ResponseEntity<TaskResponse> findTaskByPeriod(
             @PathVariable Long customerId,
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
@@ -62,23 +61,24 @@ public class TaskController {
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant initialDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant finalDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant finalDate,
+            @RequestParam NotificationStatusEnum status) {
         return ResponseEntity.ok(taskService.findByPeriodAndPendingTask(customerId, pageNumber, pageSize, sortBy, sortOrder,
                 initialDate, finalDate));
     }
 
-    @DeleteMapping("/customers/{customerId}/tasks")
-    public ResponseEntity<Void> deleteTaskById(@RequestParam("id") String id,
-                                               @PathVariable Long customerId) {
-        taskService.softDeleteTask(id, customerId);
+    @DeleteMapping("/customers/{customerId}/tasks/{taskId}")
+    public ResponseEntity<Void> deleteTaskById(@PathVariable Long customerId,
+                                               @PathVariable String taskId) {
+        taskService.softDeleteTask(taskId, customerId);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/customers/{customerId}/tasks")
+    @PutMapping("/customers/{customerId}/tasks/{taskId}")
     public ResponseEntity<TaskResponseDTO> updateTasks(@PathVariable Long customerId,
-                                                       @RequestParam("id") String id,
+                                                       @PathVariable String taskId,
                                                        @RequestBody TaskUpdateDTO taskUpdateDTO) {
-        return new ResponseEntity<>(taskService.updateTask(customerId, id, taskUpdateDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(taskService.updateTask(customerId, taskId, taskUpdateDTO), HttpStatus.CREATED);
     }
 
     @PatchMapping("/customers/{customerId}/tasks/{taskId}/status")
