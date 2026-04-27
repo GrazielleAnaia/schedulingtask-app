@@ -24,6 +24,9 @@
       <module name="eureka" options="-parameters" />
       <module name="eureka.main" options="-parameters" />
       <module name="eureka.test" options="-parameters" />
+      <module name="gateway" options="-parameters" />
+      <module name="gateway.main" options="-parameters" />
+      <module name="gateway.test" options="-parameters" />
       <module name="notification-api" options="-parameters" />
       <module name="notification-api.main" options="-parameters" />
       <module name="notification-api.test" options="-parameters" />
