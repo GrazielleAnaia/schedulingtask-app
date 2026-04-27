@@ -13,11 +13,11 @@ spring:
 #              uri: http://localhost:8080
               uri: lb://REGISTRATION-API
               predicates:
-                - Path=/api/v1/customers, /api/v1/customers/{customerId}, /api/v1/customers/me, /api/v1/customers/{customerId}/addresses/**, /api/v1/customers/{customerId}/phones/**, /api/v1/customers/{customerId}/status
+                - Path=/api/v1/customers,/api/v1/customers/**,/api/v1/customers/{customerId},/api/v1/customers/me,/api/v1/customers/{customerId}/addresses/**,/api/v1/customers/{customerId}/phones/**,/api/v1/customers/{customerId}/status
             - id: scheduling-api
               uri: lb://SCHEDULING-API
               predicates:
-                - Path=/api/v1/customers/{customerId}/tasks/**, /api/v1/admin/tasks
+                - Path=/api/v1/customers/{customerId}/tasks/**,/api/v1/admin/tasks
 
 eureka:
   instance:
@@ -39,13 +39,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: gateway
+        include: gateway,health,info
 
 logging:
   level:
     root: info
     org.springframework.cloud.gateway.route.RouteDefinitionLocator: TRACE
-    org.springframework.cloud.gateway: TRACE
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.netflix.eureka: DEBUG
+    reactor.netty: DEBUG
 
 server:
   port: 8880
