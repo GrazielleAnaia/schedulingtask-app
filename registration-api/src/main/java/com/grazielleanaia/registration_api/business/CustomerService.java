@@ -95,32 +95,32 @@ public class CustomerService {
     }
 
     @Transactional
-    public CustomerResponseDTO updateCustomer(CustomerRequestDTO customerRequestDTO, Long customerId) {
-        Customer customer = customerRepository.findByIdAndDeletedFalse(customerId).orElseThrow(() ->
+    public CustomerResponseDTO updateCustomer(CustomerRequestDTO customerRequestDTO, String email) {
+        Customer customer = customerRepository.findByEmailAndDeletedFalse(email).orElseThrow(() ->
                 new ResourceNotFoundException("Customer id not found"));
         Customer customer1 = customerUpdateMapper.updateCustomer(customer, customerRequestDTO);
         return customerMapper.toCustomerDTO(customer1);
     }
 
     @Transactional
-    public AddressResponseDTO updateAddress(AddressRequestDTO addressDTO, Long addressId, Long customerId) {
-        Address address = addressRepository.findByIdAndCustomerId(customerId, addressId).orElseThrow(() ->
+    public AddressResponseDTO updateAddress(AddressRequestDTO addressDTO, Long addressId, String email) {
+        Address address = addressRepository.findByIdAndCustomerEmail(addressId, email).orElseThrow(() ->
                 new ResourceNotFoundException("Address id not found " + addressId));
         customerUpdateMapper.updateAddress(address, addressDTO);
         return customerMapper.toAddressDTO(address);
     }
 
     @Transactional
-    public PhoneResponseDTO updatePhone(PhoneRequestDTO phoneDTO, Long customerId, Long phoneId) {
-        Phone phone = phoneRepository.findByIdAndCustomerId(phoneId, customerId).orElseThrow(() ->
+    public PhoneResponseDTO updatePhone(PhoneRequestDTO phoneDTO, String email, Long phoneId) {
+        Phone phone = phoneRepository.findByIdAndCustomerEmail(phoneId, email).orElseThrow(() ->
                 new ResourceNotFoundException("Phone id not found " + phoneId));
         Phone phone1 = customerUpdateMapper.updatePhone(phone, phoneDTO);
         return customerMapper.toPhoneDTO(phone1);
     }
 
     @Transactional
-    public AddressResponseDTO addCustomerAddress(AddressRequestDTO addressDTO, Long customerId) {
-        Customer customer = customerRepository.findByIdAndDeletedFalse(customerId).orElseThrow(() ->
+    public AddressResponseDTO addCustomerAddress(AddressRequestDTO addressDTO, String email) {
+        Customer customer = customerRepository.findByEmailAndDeletedFalse(email).orElseThrow(() ->
                 new ResourceNotFoundException("Customer not found "));
         Address address = customerMapper.addAddress(addressDTO);
         address.setCustomer(customer);
@@ -129,8 +129,8 @@ public class CustomerService {
     }
 
     @Transactional
-    public PhoneResponseDTO addPhone(PhoneRequestDTO phoneDTO, Long customerId) {
-        Customer customer = customerRepository.findByIdAndDeletedFalse(customerId).orElseThrow(() ->
+    public PhoneResponseDTO addPhone(PhoneRequestDTO phoneDTO, String email) {
+        Customer customer = customerRepository.findByEmailAndDeletedFalse(email).orElseThrow(() ->
                 new ResourceNotFoundException("Customer not found "));
         Phone phone = customerMapper.addPhone(phoneDTO);
         phone.setCustomer(customer);
