@@ -10,14 +10,13 @@ spring:
         webflux:
           routes:
             - id: registration-api
-#              uri: http://localhost:8080
               uri: lb://REGISTRATION-API
               predicates:
-                - Path=/api/v1/customers,/api/v1/customers/**,/api/v1/customers/{customerId},/api/v1/customers/me,/api/v1/customers/{customerId}/addresses/**,/api/v1/customers/{customerId}/phones/**,/api/v1/customers/{customerId}/status
+                - Path=/api/v1/customers,/api/v1/customers/**,/api/v1/admin/customers,/api/v1/admin/customers/**
             - id: scheduling-api
               uri: lb://SCHEDULING-API
               predicates:
-                - Path=/api/v1/customers/{customerId}/tasks/**,/api/v1/admin/tasks
+                - Path=/api/v1/customers,/api/v1/customers/{customerId}/tasks/**,/api/v1/admin/tasks
 
 eureka:
   instance:
@@ -33,6 +32,9 @@ eureka:
     fetch-registry: true
 
 management:
+  info:
+    env:
+      enabled: true
   endpoint:
     gateway:
       access: read-only
@@ -41,13 +43,18 @@ management:
       exposure:
         include: gateway,health,info
 
+info:
+  app:
+    name: gateway
+    description: API Gateway
+    port: 8880
+
 logging:
   level:
     root: info
     org.springframework.cloud.gateway.route.RouteDefinitionLocator: TRACE
     org.springframework.cloud.gateway: DEBUG
     org.springframework.cloud.netflix.eureka: DEBUG
-    reactor.netty: DEBUG
 
 server:
   port: 8880

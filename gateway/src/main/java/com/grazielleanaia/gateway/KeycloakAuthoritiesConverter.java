@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class KeycloakAuthoritiesConverter implements Converter<Jwt, Flux<GrantedAuthority>> {
+
     @Override
     public Flux<GrantedAuthority> convert(Jwt jwt) {
 
