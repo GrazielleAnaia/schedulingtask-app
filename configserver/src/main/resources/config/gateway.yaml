@@ -16,7 +16,7 @@ spring:
             - id: scheduling-api
               uri: lb://SCHEDULING-API
               predicates:
-                - Path=/api/v1/customers,/api/v1/customers/{customerId}/tasks/**,/api/v1/admin/tasks
+                - Path=/api/v1/customers/{customerId}/tasks/**,/api/v1/admin/tasks
 
 eureka:
   instance:
