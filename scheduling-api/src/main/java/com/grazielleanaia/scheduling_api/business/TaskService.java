@@ -66,7 +66,7 @@ public class TaskService {
     //Ok
     @Transactional
     public TaskResponseDTO createTask(TaskRequestDTO request, Long customerId) throws ExecutionException, InterruptedException {
-        //Validate customer exists with FeignClient
+        //Validate customer exists with FeignClient or HttpInterface with RestClient
         CustomerResponseDTO customerResponseDTO = customerGateway.findCustomerById(customerId); //customerGateway decides feign or http client type
 
         TaskEntity entity = taskConverter.toTaskEntity(request);
