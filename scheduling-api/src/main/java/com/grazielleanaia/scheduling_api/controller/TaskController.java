@@ -26,14 +26,14 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-
-    @PostMapping("/customers/{customerId}/tasks")
+    //purpose: current logged-in user profile create task
+    //gateway rule: authenticated
+    @PostMapping("/customers/me/tasks")
     public ResponseEntity<TaskResponseDTO> createTask(@RequestBody TaskRequestDTO taskRequestDTO,
-                                                      @PathVariable Long customerId) throws ExecutionException, InterruptedException {
-        return new ResponseEntity<>(taskService.createTask(taskRequestDTO, customerId), HttpStatus.CREATED);
+                                                      @RequestHeader("X-User-Email") String email) throws ExecutionException, InterruptedException {
+        return new ResponseEntity<>(taskService.createTask(taskRequestDTO, email), HttpStatus.CREATED);
     }
 
-    //Pagination returns all data regardless status
     @GetMapping("/admin/tasks")
     public ResponseEntity<TaskResponse> findAllTaskList(
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
@@ -43,19 +43,28 @@ public class TaskController {
         return ResponseEntity.ok(taskService.findAllTaskList(pageNumber, pageSize, sortBy, sortOrder));
     }
 
-    //Pagination returns specific active customer data
-    @GetMapping(value = "/customers/{customerId}/tasks", params = {"!initialDate", "!finalDate", "!status"})
-    public ResponseEntity<TaskResponse> findTaskListByCustomerId(@PathVariable Long customerId,
-                                                                 @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-                                                                 @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
-                                                                 @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
-                                                                 @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
-        return ResponseEntity.ok(taskService.findTaskListByCustomerId(customerId, pageNumber, pageSize, sortBy, sortOrder));
+
+    @GetMapping(value = "/admin/customers/{customerId}/tasks", params = {"!initialDate", "!finalDate", "!status"})
+    public ResponseEntity<TaskResponse> adminFindTaskListByCustomerId(@PathVariable Long customerId,
+                                                                      @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+                                                                      @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+                                                                      @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+                                                                      @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
+        return ResponseEntity.ok(taskService.findAdminTaskListByCustomerId(customerId, pageNumber, pageSize, sortBy, sortOrder));
     }
 
-    @GetMapping(value = "/customers/{customerId}/tasks", params = {"initialDate", "finalDate", "status=PENDING"})
+    @GetMapping(value = "/customers/me/tasks", params = {"!initialDate", "!finalDate", "!status"})
+    public ResponseEntity<TaskResponse> customerFindCustomerTaskList(@RequestHeader("X-User-Email") String email,
+                                                                     @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+                                                                     @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+                                                                     @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+                                                                     @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
+        return ResponseEntity.ok(taskService.customerFindTaskListByCustomerEmail(email, pageNumber, pageSize, sortBy, sortOrder));
+    }
+
+    @GetMapping(value = "/customers/me/tasks", params = {"initialDate", "finalDate", "status=PENDING"})
     public ResponseEntity<TaskResponse> findTaskByPeriod(
-            @PathVariable Long customerId,
+            @RequestHeader("X-User-Email") String email,
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
@@ -63,28 +72,35 @@ public class TaskController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant initialDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant finalDate,
             @RequestParam NotificationStatusEnum status) {
-        return ResponseEntity.ok(taskService.findByPeriodAndPendingTask(customerId, pageNumber, pageSize, sortBy, sortOrder,
+        return ResponseEntity.ok(taskService.findByPeriodAndPendingTask(email, pageNumber, pageSize, sortBy, sortOrder,
                 initialDate, finalDate));
     }
 
-    @DeleteMapping("/customers/{customerId}/tasks/{taskId}")
-    public ResponseEntity<Void> deleteTaskById(@PathVariable Long customerId,
-                                               @PathVariable String taskId) {
-        taskService.softDeleteTask(taskId, customerId);
+    @DeleteMapping("/admin/customers/{customerId}/tasks/{taskId}")
+    public ResponseEntity<Void> adminDeleteTaskById(@PathVariable Long customerId,
+                                                    @PathVariable String taskId) {
+        taskService.adminSoftDeleteTask(taskId, customerId);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/customers/{customerId}/tasks/{taskId}")
-    public ResponseEntity<TaskResponseDTO> updateTasks(@PathVariable Long customerId,
+    @PutMapping("/customers/me/tasks/{taskId}")
+    public ResponseEntity<TaskResponseDTO> updateTasks(@RequestHeader("X-User-Email") String email,
                                                        @PathVariable String taskId,
                                                        @RequestBody TaskUpdateDTO taskUpdateDTO) {
-        return new ResponseEntity<>(taskService.updateTask(customerId, taskId, taskUpdateDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(taskService.updateTask(email, taskId, taskUpdateDTO), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/customers/{customerId}/tasks/{taskId}/status")
+    @PatchMapping("/admin/customers/{customerId}/tasks/{taskId}/status")
     public ResponseEntity<TaskResponseDTO> changeNotificationStatus(@PathVariable Long customerId,
                                                                     @PathVariable String taskId,
                                                                     @RequestParam("status") NotificationStatusEnum status) {
         return ResponseEntity.ok(taskService.changeNotificationStatus(customerId, taskId, status));
+    }
+
+    @DeleteMapping("/customers/me/tasks/{taskId}")
+    public ResponseEntity<Void> customerDeleteTaskById(@PathVariable String taskId,
+                                                       @RequestHeader("X-User-Email") String email) {
+        taskService.customerDeleteTaskById(taskId, email);
+        return ResponseEntity.ok().build();
     }
 }

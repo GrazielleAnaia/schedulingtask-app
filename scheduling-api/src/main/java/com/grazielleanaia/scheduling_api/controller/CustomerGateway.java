@@ -27,12 +27,21 @@ public class CustomerGateway {
         this.httpClient = httpClient;
     }
 
-    public CustomerResponseDTO findCustomerById(Long id) {
+//    public CustomerResponseDTO findCustomerById(Long id) {
+//        if ("http".equalsIgnoreCase(clientType)) {
+//            logger.info("Client type is http: {}", httpClient.getClass().getName());
+//            return httpClient.findCustomerById(id);
+//        }
+//        logger.info("Client type is feign: {}", feignClient.getClass().getName());
+//        return feignClient.findCustomerById(id);
+//    }
+
+    public CustomerResponseDTO findCustomerByEmail(String email) {
         if ("http".equalsIgnoreCase(clientType)) {
             logger.info("Client type is http: {}", httpClient.getClass().getName());
-            return httpClient.findCustomerById(id);
+            return httpClient.getMyProfile(email);
         }
         logger.info("Client type is feign: {}", feignClient.getClass().getName());
-        return feignClient.findCustomerById(id);
+        return feignClient.getMyProfile(email);
     }
 }
