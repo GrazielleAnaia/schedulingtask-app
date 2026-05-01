@@ -14,8 +14,14 @@ public interface TaskRepository extends MongoRepository<TaskEntity, String> {
 
     Page<TaskEntity> findByCustomerIdAndDeletedFalse(Long customerId, Pageable pageable);
 
-    Optional<TaskEntity> findByIdAndCustomerIdAndDeletedFalse(String id, Long customerId);
+    Page<TaskEntity> findByCustomerEmailAndDeletedFalse(String email, Pageable pageable);
 
-    Page<TaskEntity> findByCustomerIdAndEventDateBetweenAndNotificationStatusEnum(Long customerId, Instant initialDate, Instant finalDate,
-                                                                                  NotificationStatusEnum status, Pageable pageable);
+
+    Optional<TaskEntity> findByIdAndCustomerIdAndDeletedFalse(String taskId, Long customerId);
+
+    Page<TaskEntity> findByCustomerIdAndEventDateBetweenAndNotificationStatusEnum(Long customerId, Instant initialDate, Instant finalDate, NotificationStatusEnum status, Pageable pageable);
+
+    Page<TaskEntity> findByCustomerEmailAndDeletedFalseAndEventDateBetweenAndNotificationStatusEnum(String email, Instant initialDate, Instant finalDate, NotificationStatusEnum status, Pageable pageable);
+
+    Optional<TaskEntity> findByIdAndCustomerEmailAndDeletedFalse(String taskId, String email);
 }
