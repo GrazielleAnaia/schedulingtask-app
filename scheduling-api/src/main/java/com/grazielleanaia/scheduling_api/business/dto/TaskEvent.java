@@ -7,6 +7,8 @@ public class TaskEvent {
     private String taskId;
 
     private Long customerId;
+    
+    private String customerEmail;
 
     private String taskName;
 
@@ -14,15 +16,19 @@ public class TaskEvent {
 
     private String status;
 
-    public TaskEvent() {
+    public TaskEvent(String id, Long customerId, String taskName, Instant eventDate, String cancelled) {
     }
 
-    public TaskEvent(String taskId, Long customerId, String taskName, Instant eventDate, String status) {
+    public TaskEvent(String taskId, Long customerId, String customerEmail, String taskName, Instant eventDate, String status) {
         this.taskId = taskId;
         this.customerId = customerId;
+        this.customerEmail = customerEmail;
         this.taskName = taskName;
         this.eventDate = eventDate;
         this.status = status;
+    }
+
+    public TaskEvent(String id, String customerEmail, String taskName, Instant eventDate, String pending) {
     }
 
     public String getTaskId() {
@@ -63,5 +69,13 @@ public class TaskEvent {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+
+    public void setCustomerEmail(String customerEmail) {
+        this.customerEmail = customerEmail;
     }
 }

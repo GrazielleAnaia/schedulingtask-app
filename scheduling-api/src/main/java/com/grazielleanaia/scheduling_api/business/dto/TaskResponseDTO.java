@@ -23,11 +23,13 @@ public class TaskResponseDTO {
 
     private Long customerId;
 
+    private String customerEmail;
+
     public TaskResponseDTO() {
     }
 
     public TaskResponseDTO(String id, String taskName, String description, Instant eventDate, Instant createdAt,
-                           Instant updatedAt, NotificationStatusEnum notificationStatusEnum, Long customerId) {
+                           Instant updatedAt, NotificationStatusEnum notificationStatusEnum, Long customerId, String customerEmail) {
         this.id = id;
         this.taskName = taskName;
         this.description = description;
@@ -36,6 +38,7 @@ public class TaskResponseDTO {
         this.updatedAt = updatedAt;
         this.notificationStatusEnum = notificationStatusEnum;
         this.customerId = customerId;
+        this.customerEmail = customerEmail;
     }
 
     public String getId() {
@@ -100,5 +103,13 @@ public class TaskResponseDTO {
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
+    }
+
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+
+    public void setCustomerEmail(String customerEmail) {
+        this.customerEmail = customerEmail;
     }
 }

@@ -65,12 +65,13 @@ public class TaskService {
 
     //Ok
     @Transactional
-    public TaskResponseDTO createTask(TaskRequestDTO request, Long customerId) throws ExecutionException, InterruptedException {
-        //Validate customer exists with FeignClient or HttpInterface with RestClient
-        CustomerResponseDTO customerResponseDTO = customerGateway.findCustomerById(customerId); //customerGateway decides feign or http client type
+    public TaskResponseDTO createTask(TaskRequestDTO request, String email) throws ExecutionException, InterruptedException {
+        //Validate customer email exists with either FeignClient or HttpInterface with RestClient
+        CustomerResponseDTO customerResponseDTO = customerGateway.findCustomerByEmail(email); //customerGateway decides feign or http client type
 
         TaskEntity entity = taskConverter.toTaskEntity(request);
-        entity.setCustomerId(customerId);
+
+        entity.setCustomerEmail(email);
         entity.setNotificationStatusEnum(NotificationStatusEnum.PENDING);
         entity.setDeleted(false);
         entity.setTaskName(request.getTaskName());
@@ -80,7 +81,7 @@ public class TaskService {
         entity.setUpdatedAt(Instant.now());
 
         TaskEntity savedEntity = taskRepository.save(entity);
-        TaskEvent event = new TaskEvent(savedEntity.getId(), customerId, savedEntity.getTaskName(),
+        TaskEvent event = new TaskEvent(savedEntity.getId(), savedEntity.getCustomerEmail(), savedEntity.getTaskName(),
                 savedEntity.getEventDate(), "PENDING");
 
         //Send message synchronously
@@ -102,7 +103,7 @@ public class TaskService {
 
     //Ok
     @Transactional
-    public void softDeleteTask(String taskId, Long customerId) {
+    public void adminSoftDeleteTask(String taskId, Long customerId) {
         TaskEntity entity = taskRepository.findByIdAndCustomerIdAndDeletedFalse(taskId,
                         customerClient.findCustomerById(customerId).getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Task with id " + taskId + " not found"));
@@ -118,9 +119,8 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public TaskResponse findByPeriodAndPendingTask(Long customerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
+    public TaskResponse findByPeriodAndPendingTask(String email, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder,
                                                    Instant initialDate, Instant finalDate) {
-
         if (initialDate.isAfter(finalDate)) {
             throw new IllegalArgumentException("initial date must be before final date");
         }
@@ -128,7 +128,7 @@ public class TaskService {
         Sort sort = Sort.by(sortDirection, sortBy);
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sort);
 
-        Page<TaskEntity> taskPage = taskRepository.findByCustomerIdAndEventDateBetweenAndNotificationStatusEnum(customerId, initialDate, finalDate,
+        Page<TaskEntity> taskPage = taskRepository.findByCustomerEmailAndDeletedFalseAndEventDateBetweenAndNotificationStatusEnum(email, initialDate, finalDate,
                 NotificationStatusEnum.PENDING, pageDetails);
         List<TaskEntity> taskResponseDTOList = taskPage.getContent();
         List<TaskResponseDTO> content = taskResponseDTOList.stream()
@@ -146,15 +146,15 @@ public class TaskService {
 
     //Ok
     @Transactional
-    public TaskResponseDTO updateTask(Long customerId, String taskId, TaskUpdateDTO taskUpdateDTO) {
-        TaskEntity taskEntity = taskRepository.findByIdAndCustomerIdAndDeletedFalse(taskId, customerId)
+    public TaskResponseDTO updateTask(String email, String taskId, TaskUpdateDTO taskUpdateDTO) {
+        TaskEntity taskEntity = taskRepository.findByIdAndCustomerEmailAndDeletedFalse(taskId, email)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + taskId + "" +
-                        " or customer not found " + customerId));
+                        " or customer not found " + taskId));
         taskConverter.updateTask(taskEntity, taskUpdateDTO);
         taskEntity.setNotificationStatusEnum(NotificationStatusEnum.MODIFIED);
         taskEntity.setUpdatedAt(Instant.now());
         TaskEntity savedEntity = taskRepository.save(taskEntity);
-        TaskEvent event = new TaskEvent(savedEntity.getId(), customerId, savedEntity.getTaskName(),
+        TaskEvent event = new TaskEvent(savedEntity.getId(), email, savedEntity.getTaskName(),
                 savedEntity.getEventDate(), "MODIFIED");
         kafkaTemplate.send("task-modified-event-topic", event);
         logger.info("sending to task-modified-event-topic" + event);
@@ -204,11 +204,43 @@ public class TaskService {
 
     //Ok
     //Returns specific active customer data
-    public TaskResponse findTaskListByCustomerId(Long customerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public TaskResponse findAdminTaskListByCustomerId(Long customerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort.Direction sortDirection = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Direction.ASC;
         Sort sort = Sort.by(sortDirection, sortBy);
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sort);
         Page<TaskEntity> taskPage = taskRepository.findByCustomerIdAndDeletedFalse(customerId, pageDetails);
+        List<TaskEntity> taskList = taskPage.getContent();
+        List<TaskResponseDTO> content = taskList.stream()
+                .map(taskConverter::toTaskResponseDTO)
+                .toList();
+        TaskResponse response = new TaskResponse();
+        response.setTasks(content);
+        response.setPageNumber(taskPage.getNumber());
+        response.setPageSize(taskPage.getSize());
+        response.setTotalPages(taskPage.getTotalPages());
+        response.setTotalElements(taskPage.getTotalElements());
+        response.setLastPage(taskPage.isLast());
+        return response;
+    }
+
+    public void customerDeleteTaskById(String taskId, String email) {
+        TaskEntity entity = taskRepository.findByIdAndCustomerEmailAndDeletedFalse(taskId, email)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with id " + taskId + " not found"));
+        entity.setDeleted(true);
+        entity.setUpdatedAt(Instant.now());
+        entity.setNotificationStatusEnum(NotificationStatusEnum.CANCELLED);
+        taskRepository.save(entity);
+        TaskEvent event = new TaskEvent(entity.getId(), email, entity.getTaskName(),
+                entity.getEventDate(), "CANCELLED");
+        kafkaTemplate.send("task-cancelled-event-topic", event);
+        logger.info("sending to task-cancelled-event-topic" + event);
+    }
+
+    public TaskResponse customerFindTaskListByCustomerEmail(String email, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort.Direction sortDirection = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Direction.ASC;
+        Sort sort = Sort.by(sortDirection, sortBy);
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sort);
+        Page<TaskEntity> taskPage = taskRepository.findByCustomerEmailAndDeletedFalse(email, pageDetails);
         List<TaskEntity> taskList = taskPage.getContent();
         List<TaskResponseDTO> content = taskList.stream()
                 .map(taskConverter::toTaskResponseDTO)

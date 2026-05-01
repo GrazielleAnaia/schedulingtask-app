@@ -9,14 +9,15 @@ spring:
       server:
         webflux:
           routes:
+            - id: scheduling-api
+              order: -1
+              uri: lb://SCHEDULING-API
+              predicates:
+                - Path=/api/v1/customers/me/tasks,/api/v1/customers/me/tasks/**,/api/v1/admin/tasks,/api/v1/admin/customers/*/tasks/**
             - id: registration-api
               uri: lb://REGISTRATION-API
               predicates:
                 - Path=/api/v1/customers,/api/v1/customers/**,/api/v1/admin/customers,/api/v1/admin/customers/**
-            - id: scheduling-api
-              uri: lb://SCHEDULING-API
-              predicates:
-                - Path=/api/v1/customers/{customerId}/tasks/**,/api/v1/admin/tasks
 
 eureka:
   instance:
