@@ -19,14 +19,16 @@ public class TaskRequestDTO {
 
     private Long customerId;
 
+    private String customerEmail;
+
     public TaskRequestDTO() {
     }
 
-    public TaskRequestDTO(String taskName, String description, Instant eventDate, Long customerId) {
+    public TaskRequestDTO(String taskName, String description, Instant eventDate, Long customerId, String customerEmail) {
         this.taskName = taskName;
         this.description = description;
         this.eventDate = eventDate;
-
+        this.customerEmail = customerEmail;
         this.customerId = customerId;
     }
 
@@ -54,4 +56,11 @@ public class TaskRequestDTO {
         this.eventDate = eventDate;
     }
 
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+
+    public void setCustomerEmail(String customerEmail) {
+        this.customerEmail = customerEmail;
+    }
 }
