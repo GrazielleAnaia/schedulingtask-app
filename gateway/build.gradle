@@ -28,7 +28,7 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 	implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
-
+	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 	// Source: https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-jose
 	//implementation("org.springframework.security:spring-security-oauth2-jose:7.0.5")
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
