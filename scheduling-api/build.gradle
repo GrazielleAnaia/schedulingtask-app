@@ -36,6 +36,7 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
 	implementation 'org.springframework.cloud:spring-cloud-bus' //logic
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 	testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation'

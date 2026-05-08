@@ -63,7 +63,6 @@ public class TaskService {
         this.customerGateway = customerGateway;
     }
 
-    //Ok
     @Transactional
     public TaskResponseDTO createTask(TaskRequestDTO request, String email) throws ExecutionException, InterruptedException {
         //Validate customer email exists with either FeignClient or HttpInterface with RestClient
@@ -97,11 +96,10 @@ public class TaskService {
         logger.info("Serialized value size: " + result.getRecordMetadata().serializedValueSize());
         logger.info("Timestamp: " + result.getRecordMetadata().timestamp());
         logger.info("---sending to task-created-topic---" + event);
-
         return taskConverter.toTaskResponseDTO(savedEntity);
     }
 
-    //Ok
+
     @Transactional
     public void adminSoftDeleteTask(String taskId, Long customerId) {
         TaskEntity entity = taskRepository.findByIdAndCustomerIdAndDeletedFalse(taskId,
