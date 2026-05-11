@@ -10,14 +10,15 @@ spring:
         webflux:
           routes:
             - id: scheduling-api
-              order: -1
+              #              order: -1
               uri: lb://SCHEDULING-API
               predicates:
                 - Path=/api/v1/customers/me/tasks,/api/v1/customers/me/tasks/**,/api/v1/admin/tasks,/api/v1/admin/customers/*/tasks/**
             - id: registration-api
               uri: lb://REGISTRATION-API
               predicates:
-                - Path=/api/v1/customers,/api/v1/customers/**,/api/v1/admin/customers,/api/v1/admin/customers/**
+                #                - Path=/api/v1/customers,/api/v1/customers/**,/api/v1/admin/customers,/api/v1/admin/customers/**
+                - Path=/api/v1/customers,/api/v1/customers/me,/api/v1/customers/me/**,/api/v1/admin/customers,/api/v1/admin/customers/**
 
 eureka:
   instance:
@@ -54,8 +55,6 @@ logging:
   level:
     root: info
     org.springframework.cloud.gateway.route.RouteDefinitionLocator: TRACE
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.cloud.netflix.eureka: DEBUG
 
 server:
   port: 8880

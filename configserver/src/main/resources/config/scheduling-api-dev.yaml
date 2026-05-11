@@ -41,6 +41,9 @@ spring:
 #customer:
 #  url: http://localhost:8081 #points to registration-api-dev port 8081
 
+client:
+  type: http
+
 management:
   endpoint:
     health:
@@ -51,13 +54,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: busrefresh,refresh,health,info,env
+        include: busrefresh,refresh,health,info,env, metrics
   health:
     circuitbreakers:
       enabled: true
-
-client:
-  type: http
 
 eureka:
   instance:
