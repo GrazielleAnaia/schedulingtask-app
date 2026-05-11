@@ -63,14 +63,14 @@ public class TaskService {
         this.customerGateway = customerGateway;
     }
 
-    //Ok
     @Transactional
     public TaskResponseDTO createTask(TaskRequestDTO request, String email) throws ExecutionException, InterruptedException {
         //Validate customer email exists with either FeignClient or HttpInterface with RestClient
+        logger.info("Validating customer by email {}", email);
+
         CustomerResponseDTO customerResponseDTO = customerGateway.findCustomerByEmail(email); //customerGateway decides feign or http client type
 
         TaskEntity entity = taskConverter.toTaskEntity(request);
-
         entity.setCustomerEmail(email);
         entity.setNotificationStatusEnum(NotificationStatusEnum.PENDING);
         entity.setDeleted(false);
@@ -81,6 +81,9 @@ public class TaskService {
         entity.setUpdatedAt(Instant.now());
 
         TaskEntity savedEntity = taskRepository.save(entity);
+
+        logger.info("Customer saved to TaskRepository");
+
         TaskEvent event = new TaskEvent(savedEntity.getId(), savedEntity.getCustomerEmail(), savedEntity.getTaskName(),
                 savedEntity.getEventDate(), "PENDING");
 
@@ -101,7 +104,6 @@ public class TaskService {
         return taskConverter.toTaskResponseDTO(savedEntity);
     }
 
-    //Ok
     @Transactional
     public void adminSoftDeleteTask(String taskId, Long customerId) {
         TaskEntity entity = taskRepository.findByIdAndCustomerIdAndDeletedFalse(taskId,
@@ -144,7 +146,7 @@ public class TaskService {
         return response;
     }
 
-    //Ok
+
     @Transactional
     public TaskResponseDTO updateTask(String email, String taskId, TaskUpdateDTO taskUpdateDTO) {
         TaskEntity taskEntity = taskRepository.findByIdAndCustomerEmailAndDeletedFalse(taskId, email)
@@ -181,8 +183,6 @@ public class TaskService {
         return taskConverter.toTaskResponseDTO(updated);
     }
 
-    //Ok
-    //returns all data regardless status
     public TaskResponse findAllTaskList(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort.Direction sortDirection = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Direction.ASC;
         Sort sort = Sort.by(sortDirection, sortBy);
@@ -202,8 +202,6 @@ public class TaskService {
         return response;
     }
 
-    //Ok
-    //Returns specific active customer data
     public TaskResponse findAdminTaskListByCustomerId(Long customerId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
         Sort.Direction sortDirection = sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Direction.ASC;
         Sort sort = Sort.by(sortDirection, sortBy);
