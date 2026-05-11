@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomerGateway {
 
-    private final CustomerClient feignClient; //static
-    private final HttpCustomerClient httpClient; //RestClient (dynamic baseUrl)
+    private final CustomerClient feignClient;
+    private final HttpCustomerClient httpClient;
     private final Logger logger = LoggerFactory.getLogger(CustomerGateway.class);
 
     @Value("${client.type:feign}")
@@ -49,6 +49,7 @@ public class CustomerGateway {
     }
 
     private CustomerResponseDTO findCustomerByEmailFallback(String email, Throwable ex) {
+        logger.warn("Circuit breaker fallback triggered for email: {}", email, ex);
         throw new CustomerServiceUnavailableException("Customer service is unavailable. " +
                 "Could not verify customer email: " +
                 email, ex);

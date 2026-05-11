@@ -173,6 +173,7 @@ public class CustomerService {
     }
 
 
+    //Feign Client or Http Rest Client
     public CustomerResponseDTO getCurrentCustomer(String email) {
         Customer customer = customerRepository.findByEmailAndDeletedFalse(email)
                 .orElseThrow(() ->

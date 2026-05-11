@@ -7,6 +7,8 @@ import com.grazielleanaia.scheduling_api.business.dto.TaskResponseDTO;
 import com.grazielleanaia.scheduling_api.business.dto.TaskUpdateDTO;
 import com.grazielleanaia.scheduling_api.constants.AppConstants;
 import com.grazielleanaia.scheduling_api.infrastructure.enums.NotificationStatusEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 public class TaskController {
 
     private final TaskService taskService;
+    private final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
@@ -31,6 +34,8 @@ public class TaskController {
     @PostMapping("/customers/me/tasks")
     public ResponseEntity<TaskResponseDTO> createTask(@RequestBody TaskRequestDTO taskRequestDTO,
                                                       @RequestHeader("X-User-Email") String email) throws ExecutionException, InterruptedException {
+
+        logger.info("Creating task with email: " + email);
         return new ResponseEntity<>(taskService.createTask(taskRequestDTO, email), HttpStatus.CREATED);
     }
 
