@@ -38,6 +38,7 @@ public class CustomerGateway {
 //        return feignClient.findCustomerById(id);
 //    }
 
+    // This protects scheduling-api -> registration-api
     @CircuitBreaker(name = "customerService", fallbackMethod = "findCustomerByEmailFallback")
     public CustomerResponseDTO findCustomerByEmail(String email) {
         if ("http".equalsIgnoreCase(clientType)) {
@@ -51,7 +52,6 @@ public class CustomerGateway {
     private CustomerResponseDTO findCustomerByEmailFallback(String email, Throwable ex) {
         logger.warn("Circuit breaker fallback triggered for email: {}", email, ex);
         throw new CustomerServiceUnavailableException("Customer service is unavailable. " +
-                "Could not verify customer email: " +
-                email, ex);
+                "Could not verify customer email: " + email, ex);
     }
 }
