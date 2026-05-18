@@ -10,15 +10,48 @@ spring:
         webflux:
           routes:
             - id: scheduling-api
-              #              order: -1
+              order: -1
               uri: lb://SCHEDULING-API
               predicates:
                 - Path=/api/v1/customers/me/tasks,/api/v1/customers/me/tasks/**,/api/v1/admin/tasks,/api/v1/admin/customers/*/tasks/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                - name: CircuitBreaker
+                  args:
+                    name: schedulingApiCircuitBreaker
+                    fallbackUri: forward:/fallback/scheduling-api
             - id: registration-api
               uri: lb://REGISTRATION-API
               predicates:
                 #                - Path=/api/v1/customers,/api/v1/customers/**,/api/v1/admin/customers,/api/v1/admin/customers/**
                 - Path=/api/v1/customers,/api/v1/customers/me,/api/v1/customers/me/**,/api/v1/admin/customers,/api/v1/admin/customers/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: registrationApiCircuitBreaker
+                    fallbackUri: forward:/fallback/registration-api
+resilience4j:
+  circuitbreaker:
+    instances:
+      schedulingApiCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        slidingWindowType: COUNT_BASED
+      registrationApiCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        slidingWindowType: COUNT_BASED
 
 eureka:
   instance:
@@ -40,10 +73,12 @@ management:
   endpoint:
     gateway:
       access: read-only
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
-        include: gateway,health,info
+        include: gateway,health,info,env,metrics
 
 info:
   app:
