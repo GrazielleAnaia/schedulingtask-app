@@ -31,7 +31,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: grazielle.anaia@gmail.com
+    username:
     password:
     properties:
       mail.smtp.auth: true
@@ -41,7 +41,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: busrefresh,refresh,health,info,env
+        include: busrefresh,refresh,health,info,env,metrics
 
 eureka:
   instance:

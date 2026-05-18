@@ -48,16 +48,17 @@ management:
   endpoint:
     health:
       show-details: always
+      show-components: always
     env:
       show-values: always
-      show-components: always
   endpoints:
     web:
       exposure:
-        include: busrefresh,refresh,health,info,env, metrics
+        include: busrefresh,refresh,health,info,env,metrics
   health:
     circuitbreakers:
       enabled: true
+
 
 eureka:
   instance:
@@ -89,7 +90,7 @@ resilience4j:
         waitDurationInOpenState: 10s
         failureRateThreshold: 50
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        slidingWindowType: count_based
+        slidingWindowType: COUNT_BASED
 
 logging:
   level:
