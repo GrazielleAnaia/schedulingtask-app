@@ -34,7 +34,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LOG_DIRS: /var/lib/kafka/data
     volumes:
-      - ./volumes/kafka-1-data:/var/lib/kafka/data
+      - kafka-1-data:/var/lib/kafka/data
     networks:
       - kafka-net
 
@@ -54,7 +54,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LOG_DIRS: /var/lib/kafka/data
     volumes:
-      - ./volumes/kafka-2-data:/var/lib/kafka/data
+      - kafka-2-data:/var/lib/kafka/data
     networks:
       - kafka-net
 
@@ -74,12 +74,17 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LOG_DIRS: /var/lib/kafka/data
     volumes:
-      - ./volumes/kafka-3-data:/var/lib/kafka/data
+      - kafka-3-data:/var/lib/kafka/data
     networks:
       - kafka-net
 networks:
   kafka-net:
     driver: bridge
+
+volumes:
+  kafka-1-data:
+  kafka-2-data:
+  kafka-3-data:
 
 #  rabbitmq:
 #    container_name: rabbitmq

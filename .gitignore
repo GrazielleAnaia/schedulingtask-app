@@ -1,3 +1,22 @@
+# Local Docker data folders
 volumes/
+
+# Environment files with local/private values
 .env
 **/.env
+
+# Build outputs
+build/
+**/build/
+.gradle/
+**/.gradle/
+
+# Logs
+*.log
+logs/
+
+# IDE / OS files
+.idea/
+*.iml
+.vscode/
+.DS_Store

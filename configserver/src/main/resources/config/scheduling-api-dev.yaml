@@ -59,7 +59,6 @@ management:
     circuitbreakers:
       enabled: true
 
-
 eureka:
   instance:
     hostname: localhost
