@@ -40,13 +40,13 @@ management:
   endpoint:
     env:
       show-values: always
-      show-components: always
     health:
       show-details: always
+      show-components: always
   endpoints:
     web:
       exposure:
-        include: busrefresh,refresh,health,info,env
+        include: busrefresh,refresh,health,info,env,metrics
 
 client:
   type: feign
