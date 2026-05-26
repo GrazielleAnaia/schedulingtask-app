@@ -98,12 +98,9 @@ public class GatewayRateLimiterIntegrationTest {
         downstream.shutdown();
     }
 
-
     @Test
     void shouldReturn429WhenJwtUserExceedsRateLimit() {
         String token = "user-rate-limit-test-" + UUID.randomUUID();
-        // downstream.enqueue(new MockResponse().setResponseCode(200).setBody("ok-1"));
-        //downstream.enqueue(new MockResponse().setResponseCode(200).setBody("ok-2"));
 
         webTestClient.get()
                 .uri("/api/v1/customers/me/tasks")
@@ -124,9 +121,6 @@ public class GatewayRateLimiterIntegrationTest {
 
         String userA = "user-separate-a-" + UUID.randomUUID();
         String userB = "user-separate-b-" + UUID.randomUUID();
-        //downstream.enqueue(new MockResponse().setResponseCode(200).setBody("user-a-ok-1"));
-        //downstream.enqueue(new MockResponse().setResponseCode(200).setBody("user-a-ok-2"));
-        //downstream.enqueue(new MockResponse().setResponseCode(200).setBody("user-b-ok-1"));
 
         webTestClient.get()
                 .uri("/api/v1/customers/me/tasks")
