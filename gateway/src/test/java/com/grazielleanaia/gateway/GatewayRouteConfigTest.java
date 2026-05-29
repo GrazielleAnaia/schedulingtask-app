@@ -71,7 +71,6 @@ public class GatewayRouteConfigTest {
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("No route found with id: " + routeId));
     }
-
 }
 
 /*
