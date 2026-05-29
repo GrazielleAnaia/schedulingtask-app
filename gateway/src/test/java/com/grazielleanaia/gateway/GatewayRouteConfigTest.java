@@ -74,7 +74,6 @@ public class GatewayRouteConfigTest {
 }
 
 /*
-
 anySatisfy:
 - for objects where you want multiple assertions inside
 
