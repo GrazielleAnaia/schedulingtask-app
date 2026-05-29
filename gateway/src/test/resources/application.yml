@@ -1,0 +1,96 @@
+spring:
+  security:
+    oauth2:
+      resourceserver: #this app is protecting APIs, not logging users in with a browser, an OAuth2 resource server
+        jwt: #incoming bearer tokens are JWTs
+          issuer-uri: http://localhost:8443/realms/gateway  #trust tokens issued by this specific authorization server
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: scheduling-api
+              order: -1
+              uri: lb://SCHEDULING-API
+              predicates:
+                - Path=/api/v1/customers/me/tasks,/api/v1/customers/me/tasks/**,/api/v1/admin/tasks,/api/v1/admin/customers/*/tasks/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@userKeyResolver}"
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                - name: CircuitBreaker
+                  args:
+                    name: schedulingApiCircuitBreaker
+                    fallbackUri: forward:/fallback/scheduling-api
+            - id: registration-api
+              uri: lb://REGISTRATION-API
+              predicates:
+                #                - Path=/api/v1/customers,/api/v1/customers/**,/api/v1/admin/customers,/api/v1/admin/customers/**
+                - Path=/api/v1/customers,/api/v1/customers/me,/api/v1/customers/me/**,/api/v1/admin/customers,/api/v1/admin/customers/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: registrationApiCircuitBreaker
+                    fallbackUri: forward:/fallback/registration-api
+resilience4j:
+  circuitbreaker:
+    instances:
+      schedulingApiCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        slidingWindowType: COUNT_BASED
+      registrationApiCircuitBreaker:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        slidingWindowType: COUNT_BASED
+
+eureka:
+  instance:
+    hostname: localhost
+    home-page-url: http://localhost:${server.port}/
+    ip-address: 127.0.0.1
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoint:
+    gateway:
+      access: read-only
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: gateway,health,info,env,metrics
+
+info:
+  app:
+    name: gateway
+    description: API Gateway
+    port: 8880
+
+logging:
+  level:
+    root: info
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: TRACE
+
+server:
+  port: 8880
