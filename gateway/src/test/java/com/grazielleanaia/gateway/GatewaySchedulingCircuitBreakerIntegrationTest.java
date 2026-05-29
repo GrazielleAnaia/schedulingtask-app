@@ -1,7 +1,6 @@
 package com.grazielleanaia.gateway;
 
 
-import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,8 +10,8 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -22,7 +21,6 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -46,6 +44,7 @@ public class GatewaySchedulingCircuitBreakerIntegrationTest {
 
     private WebTestClient webTestClient;
 
+    //Creates a real HTTP client that calls the running Gateway
     @BeforeEach
     void setUpWebTestClient() {
         this.webTestClient = WebTestClient.bindToServer()
@@ -60,8 +59,10 @@ public class GatewaySchedulingCircuitBreakerIntegrationTest {
                 .uri("/api/v1/customers/me/tasks")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .exchange()
+                .expectStatus().isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
                 .expectBody()
-                .jsonPath("$.message").isEqualTo("Scheduling service is temporarily unavailable");
+                .jsonPath("$.message")
+                .isEqualTo("Scheduling service is temporarily unavailable");
     }
 
     @TestConfiguration
@@ -79,28 +80,43 @@ public class GatewaySchedulingCircuitBreakerIntegrationTest {
             };
         }
 
-        @Bean
-        RouteLocator circuitBreakerRouterTest(RouteLocatorBuilder builder) {
-            return builder.routes()
-                    .route("test-scheduling-api-circuit-breaker",
-                            route -> route.path("/api/v1/customers/me/tasks")
-                                    .filters(filters -> filters.circuitBreaker(config -> {
-                                        config.setName("schedulingApiCircuitBreaker");
-                                        config.setFallbackUri("forward:/fallback/scheduling-api");
-                                    }))
-                                    .uri("forward:/broken-scheduling-api"))
-                    .build();
-        }
-
+        //RouterFunction is a WebFlux functional HTTP endpoint alternative to @RestController
+        //ServerResponse is WebFlux functional equivalent to ResponseEntity
+        //Forces the downstream call to fail inside the app
         @Bean
         RouterFunction<ServerResponse> brokenSchedulingApiRoute() {
             return RouterFunctions.route(
                     RequestPredicates.GET("/broken-scheduling-api"),
-                    request ->
-                            ServerResponse.status(HttpStatus.SERVICE_UNAVAILABLE)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .bodyValue(Map.of("message", "Scheduling API is temporarily unavailable"))
+                    request -> Mono.error(new RuntimeException("scheduling-api is unavailable"))
             );
+        }
+
+        //Remove it to test the real GatewayFallbackController
+//        @Bean
+//        RouterFunction<ServerResponse> schedulingFallbackRoute() {
+//            return RouterFunctions.route(
+//                    RequestPredicates.GET("/fallback/scheduling-api"),
+//                    request -> ServerResponse.status(HttpStatus.SERVICE_UNAVAILABLE)
+//                            .contentType(MediaType.APPLICATION_JSON)
+//                            .bodyValue(Map.of(
+//                                    "message", "Scheduling API is temporarily unavailable"
+//                            ))
+//            );
+//        }
+
+        //Creates a real Gateway route, but route is test-only
+        @Bean
+        RouteLocator circuitBreakerTestRoute(RouteLocatorBuilder builder) {
+            return builder.routes()
+                    .route("test-scheduling-api-circuit-breaker", route -> route
+                            .path("/api/v1/customers/me/tasks")
+                            .filters(filters -> filters.circuitBreaker(config -> {
+                                config.setName("schedulingApiCircuitBreaker");
+                                config.setFallbackUri("forward:/fallback/scheduling-api");
+                            }))
+                            .uri("forward:/broken-scheduling-api")
+                    )
+                    .build();
         }
     }
 }
