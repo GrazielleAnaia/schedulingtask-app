@@ -9,18 +9,23 @@ spring:
     config:
       enabled: false
 
+  config:
+    import: ""
+  bus:
+    enabled: false
+
   mongodb:
     uri: mongodb://localhost:27017/scheduling-test
     database: scheduling-test
 
   kafka:
     bootstrap-servers: localhost:9092
-#    admin:
-#      fail-fast: false
-#      operation-timeout: 60s
-#      properties:
-#        request.timeout.ms: 60000
-#        default.api.timeout.ms: 60000
+    admin:
+      fail-fast: false
+      operation-timeout: 60s
+      properties:
+        request.timeout.ms: 60000
+        default.api.timeout.ms: 60000
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
@@ -58,3 +63,8 @@ management:
 
 client:
   type: http
+
+logging:
+  level:
+    org.mongodb.driver.cluster: WARN
+    org.mongodb.driver.connection: WARN

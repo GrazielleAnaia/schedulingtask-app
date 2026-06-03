@@ -18,6 +18,12 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
+    @Value("${app.kafka.topic.replication-factor:3}")
+    private int replicationFactor;
+
+    @Value("${app.kafka.topic.min-insync-replicas:2}")
+    private String minInsyncReplicas;
+
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
@@ -49,8 +55,8 @@ public class KafkaConfig {
     NewTopic createNewTopic() {
         return TopicBuilder.name("task-created-topic")
                 .partitions(3)
-                .replicas(3)
-                .configs(Map.of("min.insync.replicas", "2"))
+                .replicas(replicationFactor)
+                .configs(Map.of("min.insync.replicas", minInsyncReplicas))
                 .build();
     }
 
@@ -58,8 +64,8 @@ public class KafkaConfig {
     NewTopic createCancelledTopic() {
         return TopicBuilder.name("task-cancelled-event-topic")
                 .partitions(3) //parallelism
-                .replicas(3) //fault tolerance
-                .configs(Map.of("min.insync.replicas", "2")) //at least 2 brokers must confirm write
+                .replicas(replicationFactor) //fault tolerance
+                .configs(Map.of("min.insync.replicas", minInsyncReplicas)) //at least 2 brokers must confirm write
                 .build();
     }
 

@@ -1,6 +1,5 @@
 package com.grazielleanaia.scheduling_api.business;
 
-
 import com.grazielleanaia.scheduling_api.business.dto.CustomerResponseDTO;
 import com.grazielleanaia.scheduling_api.business.dto.TaskEvent;
 import com.grazielleanaia.scheduling_api.business.dto.TaskRequestDTO;
@@ -8,18 +7,13 @@ import com.grazielleanaia.scheduling_api.business.mapper.TaskConverter;
 import com.grazielleanaia.scheduling_api.controller.CustomerGateway;
 import com.grazielleanaia.scheduling_api.infrastructure.entity.TaskEntity;
 import com.grazielleanaia.scheduling_api.infrastructure.repository.TaskRepository;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
@@ -65,12 +59,6 @@ import static org.mockito.Mockito.when;
 
 public class TaskServiceIntegrationTest {
 
-    @Value("${app.kafka.topic.replication-factor:3}")
-    private int replicationFactor;
-
-    @Value("${app.kafka.topic.min-insync-replicas:2}")
-    private String minInsyncReplicas;
-
     @Container
     static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
             DockerImageName.parse("confluentinc/cp-kafka:7.4.0"));
@@ -85,7 +73,7 @@ public class TaskServiceIntegrationTest {
         registry.add("spring.mongodb.database", () -> "scheduling-test");
         registry.add("eureka.client.enabled", () -> "false");
         registry.add("spring.cloud.config.enabled", () -> "false");
-//        registry.add("spring.cloud.bus.enabled", () -> "false");
+        registry.add("spring.cloud.bus.enabled", () -> "false");
     }
 
     @Autowired
@@ -146,15 +134,5 @@ public class TaskServiceIntegrationTest {
         } finally {
             consumer.close();
         }
-    }
-
-    @Bean
-    @Primary
-    NewTopic newTopic() {
-        return TopicBuilder.name("task-created-topic")
-                .partitions(3)
-                .replicas(replicationFactor)
-                .configs(Map.of("min.insync.replicas", minInsyncReplicas))
-                .build();
     }
 }
