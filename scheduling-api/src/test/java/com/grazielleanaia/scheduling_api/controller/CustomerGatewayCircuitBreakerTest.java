@@ -5,9 +5,11 @@ import com.grazielleanaia.scheduling_api.infrastructure.client.HttpCustomerClien
 import com.grazielleanaia.scheduling_api.infrastructure.exception.CustomerServiceUnavailableException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +30,8 @@ import static org.mockito.Mockito.*;
         "resilience4j.circuitbreaker.instances.customerService.slidingWindowType=COUNT_BASED"
 })
 
+@ActiveProfiles("test")
+
 public class CustomerGatewayCircuitBreakerTest {
     @Autowired
     private CustomerGateway customerGateway;
@@ -41,6 +45,11 @@ public class CustomerGatewayCircuitBreakerTest {
     @MockitoBean
     private HttpCustomerClient httpClient;
 
+    @BeforeEach
+    void resetCircuitBreaker() {
+        reset(httpClient, feignClient);
+        circuitBreakerRegistry.circuitBreaker("customerService").reset();
+    }
 
     @Test
     void shouldOpenCircuitBreakerWhenCustomerServiceFails() {

@@ -28,7 +28,15 @@ public class TaskEvent {
         this.status = status;
     }
 
-    public TaskEvent(String id, String customerEmail, String taskName, Instant eventDate, String pending) {
+    public TaskEvent(String taskId, String customerEmail, String taskName, Instant eventDate, String status) {
+        this.taskId = taskId;
+        this.customerEmail = customerEmail;
+        this.taskName = taskName;
+        this.eventDate = eventDate;
+        this.status = status;
+    }
+
+    public TaskEvent() {
     }
 
     public String getTaskId() {
