@@ -1,0 +1,40 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+    bus:
+      enabled: false
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      group-id: task1-created-group
+      auto-offset-reset: earliest
+      properties:
+        spring:
+          deserializer:
+            key:
+              delegate:
+                class: org.apache.kafka.common.serialization.StringDeserializer
+            value:
+              delegate:
+                class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+          json:
+            trusted:
+              packages: "'com.grazielleanaia.notificationapi.dto','com.grazielleanaia.schedulingapi.business.dto'"
+            value:
+              default:
+                type: com.grazielleanaia.notificationapi.dto.TaskEvent
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  health:
+    mail:
+      enabled: false
+    rabbit:
+      enabled: false
