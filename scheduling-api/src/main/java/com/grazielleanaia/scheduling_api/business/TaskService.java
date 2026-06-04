@@ -38,7 +38,9 @@ import java.util.concurrent.ExecutionException;
 @Service
 
 public class TaskService {
+
     private final TaskRepository taskRepository;
+
     private final TaskConverter taskConverter;
 
     private final MongoTemplate mongoTemplate;

@@ -1,11 +1,19 @@
 package com.grazielleanaia.scheduling_api.business;
 
+/*
+I used Testcontainers to run real Kafka and MongoDB during integration tests.
+The test starts the Spring Boot application with the test profile,
+replaces only the external customer service dependency with a mock,
+calls the real TaskService, persists through the real Mongo repository,
+publishes through the real KafkaTemplate/KafkaConfig,
+and verifies the produced Kafka event using a real consumer
+*/
+
 import com.grazielleanaia.scheduling_api.business.dto.CustomerResponseDTO;
 import com.grazielleanaia.scheduling_api.business.dto.TaskEvent;
 import com.grazielleanaia.scheduling_api.business.dto.TaskRequestDTO;
 import com.grazielleanaia.scheduling_api.business.mapper.TaskConverter;
 import com.grazielleanaia.scheduling_api.controller.CustomerGateway;
-import com.grazielleanaia.scheduling_api.infrastructure.entity.TaskEntity;
 import com.grazielleanaia.scheduling_api.infrastructure.repository.TaskRepository;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -82,12 +90,6 @@ public class TaskServiceIntegrationTest {
     @MockitoBean
     private CustomerGateway customerGateway;
 
-    @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
-    private TaskConverter taskConverter;
-
     @Test
     void testCreateTaskWhenGivenValidTaskRequestSuccessfulSendsKafkaMessage() throws ExecutionException, InterruptedException {
 
@@ -105,31 +107,35 @@ public class TaskServiceIntegrationTest {
         //The real Kafka event is sent here
         taskService.createTask(request, customerEmail);
 
-        TaskEntity taskEntity = taskConverter.toTaskEntity(request);
-        taskEntity.setCustomerEmail(customerEmail);
-        taskRepository.save(taskEntity);
-
         Map<String, Object> consumerProps = new HashMap<>();
+        //Connect consumer to the Testcontainers Kafka broker
         consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
         consumerProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consumer-group-" + UUID.randomUUID());
         consumerProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
-        consumerProps.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "*");
+        consumerProps.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "com.grazielleanaia.scheduling_api.business.dto");
         consumerProps.put(JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, TaskEvent.class);
         consumerProps.put(JacksonJsonDeserializer.USE_TYPE_INFO_HEADERS, false);
 
         ConsumerFactory<String, TaskEvent> consumerFactory = new DefaultKafkaConsumerFactory<>(consumerProps);
         Consumer<String, TaskEvent> consumer = consumerFactory.createConsumer();
 
+        //Always close the Kafka consumer, even if the assertion fails
         try {
+            //Creates the actual Kafka consumer
             consumer.subscribe(List.of("task-created-topic"));
 
+            //Consumer starts listening to your producer topic
             ConsumerRecord<String, TaskEvent> record = KafkaTestUtils.getSingleRecord(consumer, "task-created-topic", Duration.ofSeconds(10));
 
+            //Proves the payload has the expected email
             assertThat(record.value().getCustomerEmail()).isEqualTo("test@email.com");
+
             assertThat(record.value().getTaskName()).isEqualTo("Test Task");
+
+            //Proves producer added the idempotency tracking header
             assertThat(record.headers().lastHeader("messageHeaderId")).isNotNull();
         } finally {
             consumer.close();
