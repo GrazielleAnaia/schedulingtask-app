@@ -22,8 +22,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -98,44 +96,6 @@ public class TaskServiceIntegrationTest {
 
     private Consumer<String, TaskEvent> consumer;
 
-//    @BeforeEach
-//    void setUpKafkaConsumer() {
-//        Map<String, Object> consumerProps = new HashMap<>();
-//
-//        consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
-//        consumerProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consumer-group-" + UUID.randomUUID());
-//        consumerProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
-//        consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-//        consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-//        consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
-//        consumerProps.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "com.grazielleanaia.scheduling_api.business.dto");
-//        consumerProps.put(JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, TaskEvent.class);
-//        consumerProps.put(JacksonJsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-//
-//        ConsumerFactory<String, TaskEvent> consumerFactory =
-//                new DefaultKafkaConsumerFactory<>(consumerProps);
-//
-//        consumer = consumerFactory.createConsumer();
-//        consumer.subscribe(List.of(TASK_CREATED_TOPIC));
-//
-//        long deadline = System.currentTimeMillis() + 5000;
-//
-//        while (consumer.assignment().isEmpty() && System.currentTimeMillis() < deadline) {
-//            consumer.poll(Duration.ofMillis(100));
-//        }
-//
-//        assertThat(consumer.assignment()).isNotEmpty();
-//
-//        consumer.seekToEnd(consumer.assignment());
-//
-//    }
-//
-//    @AfterEach
-//    void tearDownKafkaConsumer() {
-//        if (consumer != null) {
-//            consumer.close();
-//        }
-//    }
 
     @Test
     void testCreateTaskWhenGivenValidTaskRequestSuccessfulSendsKafkaMessage() throws ExecutionException, InterruptedException {
@@ -154,17 +114,21 @@ public class TaskServiceIntegrationTest {
         //The real Kafka event is sent here
         taskService.createTask(request, customerEmail);
 
-        //Consumer starts listening to your producer topic
-        ConsumerRecord<String, TaskEvent> record =
-                KafkaTestUtils.getSingleRecord(consumer, "task-created-topic", Duration.ofSeconds(10));
+        try (Consumer<String, TaskEvent> testConsumer = createTaskEventConsumer()) {
+            testConsumer.subscribe(List.of(TASK_CREATED_TOPIC));
 
-        //Proves the payload has the expected email
-        assertThat(record.value().getCustomerEmail()).isEqualTo("test@email.com");
+            //Consumer starts listening to your producer topic
+            ConsumerRecord<String, TaskEvent> record =
+                    KafkaTestUtils.getSingleRecord(testConsumer, TASK_CREATED_TOPIC, Duration.ofSeconds(10));
 
-        assertThat(record.value().getTaskName()).isEqualTo("Test Task");
+            //Proves the payload has the expected email
+            assertThat(record.value().getCustomerEmail()).isEqualTo("test@email.com");
 
-        //Proves producer added the idempotency tracking header
-        assertThat(record.headers().lastHeader("messageHeaderId")).isNotNull();
+            assertThat(record.value().getTaskName()).isEqualTo("Test Task");
+
+            //Proves producer added the idempotency tracking header
+            assertThat(record.headers().lastHeader("messageHeaderId")).isNotNull();
+        }
     }
 
     @Test
@@ -182,24 +146,28 @@ public class TaskServiceIntegrationTest {
 
         TaskResponseDTO responseDTO = taskService.createTask(request, customerEmail);
 
-        ConsumerRecord<String, TaskEvent> record =
-                KafkaTestUtils.getSingleRecord(consumer, "task-created-topic", Duration.ofSeconds(10));
+        try (Consumer<String, TaskEvent> testConsumer = createTaskEventConsumer()) {
+            testConsumer.subscribe(List.of(TASK_CREATED_TOPIC));
 
-        TaskEvent event = record.value();
+            ConsumerRecord<String, TaskEvent> record =
+                    KafkaTestUtils.getSingleRecord(testConsumer, TASK_CREATED_TOPIC, Duration.ofSeconds(10));
 
-        //topic and key
-        assertThat(record.topic()).isEqualTo("task-created-topic");
-        assertThat(record.key()).isEqualTo(responseDTO.getId());
+            TaskEvent event = record.value();
 
-        //payload
-        assertThat(event.getTaskId()).isEqualTo(responseDTO.getId());
-        assertThat(event.getCustomerEmail()).isEqualTo(customerEmail);
-        assertThat(event.getTaskName()).isEqualTo("Test Task");
-        assertThat(event.getStatus()).isEqualTo("PENDING");
-        assertThat(event.getEventDate()).isEqualTo(request.getEventDate());
+            //topic and key
+            assertThat(record.topic()).isEqualTo("task-created-topic");
+            assertThat(record.key()).isEqualTo(responseDTO.getId());
 
-        //headers
-        assertThat(record.headers().lastHeader("messageHeaderId")).isNotNull();
+            //payload
+            assertThat(event.getTaskId()).isEqualTo(responseDTO.getId());
+            assertThat(event.getCustomerEmail()).isEqualTo(customerEmail);
+            assertThat(event.getTaskName()).isEqualTo("Test Task");
+            assertThat(event.getStatus()).isEqualTo("PENDING");
+            assertThat(event.getEventDate()).isEqualTo(request.getEventDate());
+
+            //headers
+            assertThat(record.headers().lastHeader("messageHeaderId")).isNotNull();
+        }
     }
 
     @Test
