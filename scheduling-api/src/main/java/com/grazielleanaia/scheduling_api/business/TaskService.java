@@ -70,7 +70,7 @@ public class TaskService {
         //Validate customer email exists with either FeignClient or HttpInterface with RestClient
         logger.info("Validating customer by email {}", email);
 
-        CustomerResponseDTO customerResponseDTO = customerGateway.findCustomerByEmail(email); //customerGateway decides feign or http client type
+        CustomerResponseDTO customerResponseDTO = customerGateway.findCustomerByEmail(email);
 
         TaskEntity entity = taskConverter.toTaskEntity(request);
         entity.setCustomerEmail(email);
@@ -119,7 +119,6 @@ public class TaskService {
         TaskEvent event = new TaskEvent(entity.getId(), customerId, entity.getTaskName(),
                 entity.getEventDate(), "CANCELLED");
         kafkaTemplate.send("task-cancelled-event-topic", event);
-        logger.info("sending to task-cancelled-event-topic" + event);
     }
 
     @Transactional(readOnly = true)
@@ -161,7 +160,7 @@ public class TaskService {
         TaskEvent event = new TaskEvent(savedEntity.getId(), email, savedEntity.getTaskName(),
                 savedEntity.getEventDate(), "MODIFIED");
         kafkaTemplate.send("task-modified-event-topic", event);
-        logger.info("sending to task-modified-event-topic" + event);
+        logger.info("sending to task-modified-event-topic{}", event);
         return taskConverter.toTaskResponseDTO(savedEntity);
     }
 
