@@ -12,7 +12,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,21 +33,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-@RefreshScope
 @Service
 
 public class TaskService {
 
     private final TaskRepository taskRepository;
-
     private final TaskConverter taskConverter;
-
     private final MongoTemplate mongoTemplate;
-
     private final CustomerClient customerClient;
-
     private final CustomerGateway customerGateway;
-
     private final KafkaTemplate<String, TaskEvent> kafkaTemplate;
 
     private Logger logger = LoggerFactory.getLogger(TaskService.class);
