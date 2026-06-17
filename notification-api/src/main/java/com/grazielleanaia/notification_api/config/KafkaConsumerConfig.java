@@ -44,7 +44,7 @@ public class KafkaConsumerConfig {
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, environment.getProperty("spring.kafka.bootstrap-servers"));
         config.put(ConsumerConfig.GROUP_ID_CONFIG, environment.getProperty("spring.kafka.consumer.group-id"));
 
-        //Key: ErrorHandlingDeserializer delegating tp StringDeserializer
+        //Key: ErrorHandlingDeserializer delegating to StringDeserializer
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         config.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
 
