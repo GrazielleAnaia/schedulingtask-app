@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: configserver
+
+  profiles:
+    active: native
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+server:
+  port: 8888
