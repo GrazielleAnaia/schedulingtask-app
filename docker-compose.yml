@@ -18,6 +18,19 @@ services:
 #        - SPRING_PROFILES_ACTIVE=prod
 #        - CONFIG_SERVER_URL=http://configserver:8888
 
+  configserver:
+    container_name: configserver
+    build:
+      ./configserver
+    image: grazielle1981/configserver:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./configserver/src/main/resources/config:/config
+    environment:
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=/config
+    networks:
+      - kafka-net
 
   kafka-1:
     image: confluentinc/cp-kafka:latest
@@ -120,8 +133,8 @@ services:
     restart: unless-stopped
 
   mongo:
-    image: mongodb/mongodb-community-server
     container_name: mongo
+    image: mongodb/mongodb-community-server
     ports:
       - "27017:27017"
     networks:
