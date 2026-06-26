@@ -1,6 +1,7 @@
 package com.grazielleanaia.gateway;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -18,6 +19,9 @@ import reactor.core.publisher.Mono;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
 
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -38,7 +42,7 @@ public class SecurityConfig {
     //Uses JWK to discover metadata and the issuer-uri
     @Bean
     ReactiveJwtDecoder jwtDecoder() {
-        return ReactiveJwtDecoders.fromIssuerLocation("http://localhost:8443/realms/gateway");
+        return ReactiveJwtDecoders.fromIssuerLocation(issuerUri);
     }
 
     @Bean

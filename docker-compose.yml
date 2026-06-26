@@ -1,11 +1,21 @@
 services:
 
-#  registration-api:
-#    image: myorg/registration-api:latest
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=prod
-#      - CONFIG_SERVER_URL=http://configserver:8888
-#
+  registration-api:
+    image: grazielle1981/registration-api:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - CONFIG_SERVER_URL=http://configserver:8888
+    ports:
+      - 8082:8082
+    networks:
+      - kafka-net
+    depends_on:
+      - rabbitmq
+      - eureka
+      - gateway
+      - configserver
+    restart: on-failure
+
 #    notification-api:
 #      image: myorg/notification-api:latest
 #      environment:
@@ -18,6 +28,52 @@ services:
 #        - SPRING_PROFILES_ACTIVE=prod
 #        - CONFIG_SERVER_URL=http://configserver:8888
 
+  configserver:
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    container_name: configserver
+    image: grazielle1981/configserver:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./configserver/src/main/resources/config:/config
+    environment:
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=/config
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_PROFILES_ACTIVE=docker,native
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - kafka-net
+
+  eureka:
+    container_name: eureka
+    image: grazielle1981/eureka:latest
+    ports:
+      - "8761:8761"
+    networks:
+      - kafka-net
+
+  gateway:
+    container_name: gateway
+    image: grazielle1981/gateway:latest
+    ports:
+      - "8880:8880"
+    networks:
+      - kafka-net
+    environment:
+      - CONFIG_SERVER_URL=http://configserver:8888
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/gateway
+    depends_on:
+      - eureka
+      - keycloak
+      - redis
+      - configserver
 
   kafka-1:
     image: confluentinc/cp-kafka:latest
@@ -93,6 +149,11 @@ services:
     networks:
       - kafka-net
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   redis:
     container_name: redis-container
@@ -120,8 +181,8 @@ services:
     restart: unless-stopped
 
   mongo:
-    image: mongodb/mongodb-community-server
     container_name: mongo
+    image: mongodb/mongodb-community-server
     ports:
       - "27017:27017"
     networks:
