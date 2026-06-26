@@ -2,8 +2,8 @@ spring:
   application:
     name: configserver
 
-  profiles:
-    active: native
+#  profiles:
+#    active: native
 
   rabbitmq:
     host: rabbitmq
@@ -15,7 +15,7 @@ spring:
     config:
       server:
         native:
-          search-locations: classpath:/config
+          search-locations: /config
 
 management:
   endpoints:

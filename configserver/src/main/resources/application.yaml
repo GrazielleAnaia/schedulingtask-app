@@ -1,8 +1,8 @@
 spring:
   application:
     name: configserver
-  profiles:
-    active: native
+#  profiles:
+#    active: native
 
   rabbitmq:
     host: localhost
@@ -14,7 +14,6 @@ spring:
     config:
       server:
         native:
-#          search-locations: classpath:/config
           search-locations: file:///C:\Projects\schedulingtasks-app-ms\configserver\src\main\resources\config
 
 management:
