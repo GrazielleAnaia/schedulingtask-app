@@ -10,8 +10,13 @@ spring:
     port: 5672
     username: guest
     password: guest
+    connection-timeout: 10000
+    requested-heartbeat: 30
 
   cloud:
+    bus:
+      destination: springCloudBus
+
     config:
       server:
         native:
