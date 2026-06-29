@@ -1,20 +1,20 @@
 services:
 
-  registration-api:
-    image: grazielle1981/registration-api:latest
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - CONFIG_SERVER_URL=http://configserver:8888
-    ports:
-      - 8082:8082
-    networks:
-      - kafka-net
-    depends_on:
-      - rabbitmq
-      - eureka
-      - gateway
-      - configserver
-    restart: on-failure
+#  registration-api:
+#    image: grazielle1981/registration-api:latest
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=prod
+#      - CONFIG_SERVER_URL=http://configserver:8888
+#    ports:
+#      - 8082:8082
+#    networks:
+#      - kafka-net
+#    depends_on:
+#      - rabbitmq
+#      - eureka
+#      - gateway
+#      - configserver
+#    restart: on-failure
 
 #    notification-api:
 #      image: myorg/notification-api:latest
@@ -137,23 +137,17 @@ services:
 
   rabbitmq:
     container_name: rabbitmq
-    image: rabbitmq:4-management
+    image: rabbitmq:3.13-management
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     ports:
       - "5672:5672"
       - "15672:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - kafka-net
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+
 
   redis:
     container_name: redis-container
@@ -196,10 +190,7 @@ volumes:
   kafka-1-data:
   kafka-2-data:
   kafka-3-data:
-  rabbitmq_data:
   redis-data:
-
-
 
 #  postgres:
 #    container_name: postgres
